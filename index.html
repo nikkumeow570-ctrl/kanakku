@@ -9,7 +9,7 @@
 :root{
   --bg:#f6f5f1; --card:#ffffff; --text:#1c1c1c; --sub:#6b6b6b;
   --line:#e7e5df; --income:#1b7a5e; --expense:#b3452c; --accent:#1b7a5e;
-  --accent-ink:#ffffff; --chip:#f0efe9; --warn:#c98a1f;
+  --accent-ink:#ffffff; --chip:#f0efe9; --gold:#c98a1f;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);
   padding-bottom:env(safe-area-inset-bottom,0px);
@@ -36,9 +36,11 @@ header{
   position:sticky; top:env(safe-area-inset-top,0px); background:var(--bg);
   padding:10px 2px 10px; z-index:5; display:flex; justify-content:space-between; align-items:center;
 }
-h1{font-size:1.2rem; margin:0; letter-spacing:.2px; display:flex; align-items:center; gap:6px}
-h1 span{font-size:1.3rem}
-.themebtn{border:1px solid var(--line); background:var(--card); color:var(--text); width:34px; height:34px; border-radius:10px; font-size:1rem}
+.brand{display:flex; align-items:center; gap:8px}
+.brand svg{width:34px; height:34px; border-radius:9px; flex-shrink:0}
+h1{font-size:1.2rem; margin:0; letter-spacing:.2px}
+.hdrbtns{display:flex; gap:6px}
+.themebtn{border:1px solid var(--line); background:var(--card); color:var(--text); width:34px; height:34px; border-radius:10px; font-size:.85rem; font-weight:700}
 .monthbar{display:flex; align-items:center; justify-content:space-between; margin:4px 2px 12px}
 .monthbar button{background:var(--chip); border:none; color:var(--text); width:30px; height:30px; border-radius:8px; font-size:1rem}
 .monthbar .mlabel{font-weight:700; font-size:.95rem}
@@ -51,7 +53,7 @@ h1 span{font-size:1.3rem}
 .income .val{color:var(--income)}
 .expense .val{color:var(--expense)}
 .tabs{display:flex; gap:5px; margin:6px 0 10px; background:var(--chip); padding:4px; border-radius:12px; overflow-x:auto}
-.tab{flex:1; text-align:center; padding:8px 4px; border-radius:9px; font-size:.78rem; color:var(--sub); cursor:pointer; white-space:nowrap}
+.tab{flex:1; text-align:center; padding:8px 4px; border-radius:9px; font-size:.76rem; color:var(--sub); cursor:pointer; white-space:nowrap}
 .tab.active{background:var(--card); color:var(--text); font-weight:600}
 .panel{display:none}
 .panel.active{display:block}
@@ -81,9 +83,6 @@ input,select{
 .entry .acts{display:flex; gap:6px}
 .entry .acts span{color:var(--sub); font-size:1rem; padding:4px; opacity:.7}
 .empty{text-align:center; color:var(--sub); padding:30px 10px; font-size:.85rem}
-.catrow{display:flex; justify-content:space-between; align-items:center; font-size:.85rem; padding:7px 0; gap:8px}
-.catrow .bar{flex:1; height:6px; background:var(--chip); border-radius:4px; overflow:hidden}
-.catrow .bar i{display:block; height:100%; background:var(--expense); border-radius:4px}
 .section-title{font-size:.75rem; color:var(--sub); text-transform:uppercase; letter-spacing:.4px; margin:16px 2px 8px}
 .donutwrap{display:flex; align-items:center; gap:16px}
 .legend{flex:1; font-size:.78rem}
@@ -94,15 +93,24 @@ input,select{
 .budgetrow .bar{height:8px; background:var(--chip); border-radius:5px; overflow:hidden}
 .budgetrow .bar i{display:block; height:100%; border-radius:5px}
 .over{color:var(--expense) !important}
-.iconbtn{display:flex; gap:8px; align-items:center}
 .filerow{display:flex; gap:8px}
 .filerow button{flex:1}
 </style>
 </head>
 <body>
 <header>
-  <h1><span>💰</span>Kanakku</h1>
-  <button class="themebtn" id="themeToggle">🌓</button>
+  <div class="brand">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100" height="100" rx="22" fill="#1b7a5e"/>
+      <circle cx="50" cy="50" r="38" fill="none" stroke="#c98a1f" stroke-width="3"/>
+      <text x="50" y="68" font-size="52" text-anchor="middle" fill="#ffffff" font-family="Noto Sans Tamil, Latha, serif">க</text>
+    </svg>
+    <h1>Kanakku</h1>
+  </div>
+  <div class="hdrbtns">
+    <button class="themebtn" id="langToggle">EN</button>
+    <button class="themebtn" id="themeToggle">🌓</button>
+  </div>
 </header>
 
 <div class="monthbar">
@@ -112,91 +120,166 @@ input,select{
 </div>
 
 <div class="cards">
-  <div class="stat balance"><div class="label">Balance</div><div class="val" id="balVal">₹0</div></div>
-  <div class="stat income"><div class="label">Income</div><div class="val" id="inVal">₹0</div></div>
-  <div class="stat expense"><div class="label">Expense</div><div class="val" id="exVal">₹0</div></div>
+  <div class="stat balance"><div class="label" data-i="statBalance">Balance</div><div class="val" id="balVal">₹0</div></div>
+  <div class="stat income"><div class="label" data-i="statIncome">Income</div><div class="val" id="inVal">₹0</div></div>
+  <div class="stat expense"><div class="label" data-i="statExpense">Expense</div><div class="val" id="exVal">₹0</div></div>
 </div>
 
 <div class="tabs">
-  <div class="tab active" data-t="dash">Dashboard</div>
-  <div class="tab" data-t="add">Add</div>
-  <div class="tab" data-t="history">History</div>
-  <div class="tab" data-t="budgets">Budgets</div>
-  <div class="tab" data-t="data">Data</div>
+  <div class="tab active" data-t="dash" data-i="tabDash">Dashboard</div>
+  <div class="tab" data-t="add" data-i="tabAdd">Add</div>
+  <div class="tab" data-t="history" data-i="tabHistory">History</div>
+  <div class="tab" data-t="budgets" data-i="tabBudgets">Budgets</div>
+  <div class="tab" data-t="data" data-i="tabData">Data</div>
 </div>
 
 <div class="panel active" id="p-dash">
-  <div class="section-title">Expense breakdown</div>
+  <div class="section-title" data-i="sectionBreakdown">Expense breakdown</div>
   <div class="card">
     <div class="donutwrap">
       <svg id="donut" width="120" height="120" viewBox="0 0 120 120"></svg>
       <div class="legend" id="legend"></div>
     </div>
   </div>
-  <div class="section-title">Recent</div>
+  <div class="section-title" data-i="sectionRecent">Recent</div>
   <div class="card" id="recentList"></div>
 </div>
 
 <div class="panel" id="p-add">
   <div class="card">
     <div class="seg">
-      <button type="button" id="btnIn" class="on in">↓ Income</button>
-      <button type="button" id="btnEx" class="ex">↑ Expense</button>
+      <button type="button" id="btnIn" class="on in" data-i="segIncome">Income</button>
+      <button type="button" id="btnEx" class="ex" data-i="segExpense">Expense</button>
     </div>
-    <label>Amount (₹)</label>
+    <label data-i="lblAmount">Amount (₹)</label>
     <input type="number" id="amount" inputmode="decimal" placeholder="0">
-    <label>Category</label>
+    <label data-i="lblCategory">Category</label>
     <select id="category"></select>
-    <label>Note (optional)</label>
-    <input type="text" id="note" placeholder="e.g. tailoring order, milk, electricity">
-    <label>Date</label>
+    <label data-i="lblNote">Note (optional)</label>
+    <input type="text" id="note" data-iph="notePlaceholder" placeholder="e.g. tailoring order, milk, electricity">
+    <label data-i="lblDate">Date</label>
     <input type="date" id="date">
-    <button class="submit" id="save">Save Entry</button>
-    <button class="ghost" id="cancelEdit" style="display:none">Cancel edit</button>
+    <button class="submit" id="save" data-i="btnSave">Save Entry</button>
+    <button class="ghost" id="cancelEdit" data-i="btnCancelEdit" style="display:none">Cancel edit</button>
   </div>
 </div>
 
 <div class="panel" id="p-history">
   <div class="searchrow">
-    <input type="text" id="search" placeholder="Search notes/category">
-    <select id="filterType"><option value="all">All</option><option value="income">Income</option><option value="expense">Expense</option></select>
+    <input type="text" id="search" data-iph="searchPlaceholder" placeholder="Search notes/category">
+    <select id="filterType">
+      <option value="all" data-i="filterAll">All</option>
+      <option value="income" data-i="filterIncome">Income</option>
+      <option value="expense" data-i="filterExpense">Expense</option>
+    </select>
   </div>
   <div class="card" id="historyList"></div>
 </div>
 
 <div class="panel" id="p-budgets">
-  <div class="section-title">Monthly budgets by category</div>
+  <div class="section-title" data-i="sectionBudgets">Monthly budgets by category</div>
   <div class="card" id="budgetsList"></div>
 </div>
 
 <div class="panel" id="p-data">
   <div class="card">
-    <div class="section-title" style="margin-top:0">Currency symbol</div>
+    <div class="section-title" data-i="sectionCurrency" style="margin-top:0">Currency symbol</div>
     <input type="text" id="currencySym" maxlength="3" placeholder="₹">
-    <div class="section-title">Backup</div>
-    <div class="filerow">
-      <button class="ghost" id="exportCsv">Export CSV</button>
-      <button class="ghost" id="exportJson">Export JSON</button>
+    <div class="section-title" data-i="sectionReminder">Daily reminder</div>
+    <div class="seg">
+      <button type="button" id="remOn" class="on in" data-i="btnOn">On</button>
+      <button type="button" id="remOff" data-i="btnOff">Off</button>
     </div>
-    <label>Import JSON backup</label>
+    <label data-i="lblRemindAt">Remind me at</label>
+    <input type="time" id="remTime" value="20:00">
+    <div id="remStatus" style="font-size:.75rem; color:var(--sub); margin-top:8px"></div>
+    <div class="section-title" data-i="sectionBackup">Backup</div>
+    <div class="filerow">
+      <button class="ghost" id="exportCsv" data-i="btnExportCsv">Export CSV</button>
+      <button class="ghost" id="exportJson" data-i="btnExportJson">Export JSON</button>
+    </div>
+    <label data-i="lblImport">Import JSON backup</label>
     <input type="file" id="importFile" accept="application/json">
-    <div class="section-title">Danger zone</div>
-    <button class="ghost" id="clearAll" style="color:var(--expense); border-color:var(--expense)">Erase all data</button>
+    <div class="section-title" data-i="sectionDanger">Danger zone</div>
+    <button class="ghost" id="clearAll" data-i="btnErase" style="color:var(--expense); border-color:var(--expense)">Erase all data</button>
   </div>
 </div>
 
 <script>
-const CATS = {
+const STR = {
+en:{
+  tagline:"Your daily income & expense book",
+  tabDash:"Dashboard", tabAdd:"Add", tabHistory:"History", tabBudgets:"Budgets", tabData:"Data",
+  statBalance:"Balance", statIncome:"Income", statExpense:"Expense",
+  segIncome:"↓ Income", segExpense:"↑ Expense",
+  lblAmount:"Amount (₹)", lblCategory:"Category", lblNote:"Note (optional)",
+  notePlaceholder:"e.g. tailoring order, milk, electricity",
+  lblDate:"Date", btnSave:"Save Entry", btnUpdate:"Update Entry", btnCancelEdit:"Cancel edit",
+  sectionBreakdown:"Expense breakdown", sectionRecent:"Recent",
+  emptyExpenseMonth:"No expenses this month", emptyRecent:"No entries this month yet.",
+  searchPlaceholder:"Search notes/category", filterAll:"All", filterIncome:"Income", filterExpense:"Expense",
+  emptyHistory:"No matching entries.", sectionBudgets:"Monthly budgets by category",
+  sectionCurrency:"Currency symbol", sectionBackup:"Backup",
+  btnExportCsv:"Export CSV", btnExportJson:"Export JSON", lblImport:"Import JSON backup",
+  sectionDanger:"Danger zone", btnErase:"Erase all data",
+  sectionReminder:"Daily reminder", btnOn:"On", btnOff:"Off", lblRemindAt:"Remind me at",
+  remOffStatus:"Reminder is off.", remUnsupported:"Notifications not supported on this browser.",
+  remBlocked:"Notifications blocked — enable them in browser/site settings.",
+  remDefault:"Tap On again to allow notification permission.",
+  remOnStatus:t=>`On — daily at ${t}. Keep the app installed and opened occasionally so the check can run.`,
+  notifTitle:"Kanakku reminder", notifBody:"Don't forget to log today's income or expenses in Kanakku.",
+  importOk:"Import successful", importBad:"Invalid file",
+  eraseConfirm:"Erase all entries and budgets? This cannot be undone.",
+  setPh:"set ₹"
+},
+ta:{
+  tagline:"உங்கள் தினசரி வருமானம் & செலவு புத்தகம்",
+  tabDash:"முகப்பு", tabAdd:"சேர்", tabHistory:"வரலாறு", tabBudgets:"பட்ஜெட்", tabData:"தரவு",
+  statBalance:"இருப்பு", statIncome:"வருமானம்", statExpense:"செலவு",
+  segIncome:"↓ வருமானம்", segExpense:"↑ செலவு",
+  lblAmount:"தொகை (₹)", lblCategory:"வகை", lblNote:"குறிப்பு (விரும்பினால்)",
+  notePlaceholder:"உதா. தையல் ஆர்டர், பால், மின்சாரம்",
+  lblDate:"தேதி", btnSave:"சேமி", btnUpdate:"புதுப்பி", btnCancelEdit:"திருத்தலை ரத்து செய்",
+  sectionBreakdown:"செலவு பிரிவு", sectionRecent:"சமீபத்தியவை",
+  emptyExpenseMonth:"இந்த மாதம் செலவுகள் இல்லை", emptyRecent:"இந்த மாதம் இன்னும் பதிவுகள் இல்லை.",
+  searchPlaceholder:"குறிப்பு/வகையைத் தேடு", filterAll:"அனைத்தும்", filterIncome:"வருமானம்", filterExpense:"செலவு",
+  emptyHistory:"பொருந்தும் பதிவுகள் இல்லை.", sectionBudgets:"மாத பட்ஜெட் (வகை வாரியாக)",
+  sectionCurrency:"நாணய சின்னம்", sectionBackup:"காப்புப்பிரதி",
+  btnExportCsv:"CSV ஏற்றுமதி", btnExportJson:"JSON ஏற்றுமதி", lblImport:"JSON காப்புப்பிரதியை இறக்குமதி செய்",
+  sectionDanger:"எச்சரிக்கை பகுதி", btnErase:"அனைத்து தரவையும் அழி",
+  sectionReminder:"தினசரி நினைவூட்டல்", btnOn:"இயக்கு", btnOff:"நிறுத்து", lblRemindAt:"நினைவூட்டும் நேரம்",
+  remOffStatus:"நினைவூட்டல் நிறுத்தப்பட்டுள்ளது.", remUnsupported:"இந்த உலாவியில் அறிவிப்புகள் ஆதரிக்கப்படவில்லை.",
+  remBlocked:"அறிவிப்புகள் தடுக்கப்பட்டுள்ளன — உலாவி அமைப்புகளில் அனுமதிக்கவும்.",
+  remDefault:"அனுமதி வழங்க மீண்டும் 'இயக்கு' அழுத்தவும்.",
+  remOnStatus:t=>`இயக்கத்தில் — தினமும் ${t} மணிக்கு. செயலி திறந்திருந்தால் நினைவூட்டல் வேலை செய்யும்.`,
+  notifTitle:"Kanakku நினைவூட்டல்", notifBody:"இன்றைய வருமானம்/செலவை Kanakku-வில் பதிவு செய்ய மறக்காதீர்கள்.",
+  importOk:"இறக்குமதி வெற்றி", importBad:"தவறான கோப்பு",
+  eraseConfirm:"அனைத்து பதிவுகளும் பட்ஜெட்களும் அழிக்கப்படுமா? இதை மீட்க முடியாது.",
+  setPh:"₹ அமை"
+}
+};
+const CAT_KEYS = {
   income: ["Business Income","Household Allowance","Freelance/Order Payment","Gift/Other Income"],
-  expense: ["Groceries","Utilities (electricity/water/gas)","Rent","Business Expense","Transport","Health","Education/Children","Savings/Investment","Other"]
+  expense: ["Groceries","Utilities","Rent","Business Expense","Transport","Health","Education/Children","Savings/Investment","Other"]
+};
+const CAT_TA = {
+  "Business Income":"வணிக வருமானம்", "Household Allowance":"வீட்டு செலவுத் தொகை",
+  "Freelance/Order Payment":"ஃப்ரீலான்ஸ்/ஆர்டர் கட்டணம்", "Gift/Other Income":"பரிசு/பிற வருமானம்",
+  "Groceries":"மளிகை", "Utilities":"மின்/நீர்/எரிவாயு", "Rent":"வாடகை",
+  "Business Expense":"வணிக செலவு", "Transport":"போக்குவரத்து", "Health":"ஆரோக்கியம்",
+  "Education/Children":"கல்வி/குழந்தைகள்", "Savings/Investment":"சேமிப்பு/முதலீடு", "Other":"மற்றவை"
 };
 const PALETTE = ["#b3452c","#c98a1f","#1b7a5e","#3d6fb4","#8a4fb3","#b34f8c","#5a5a5a","#2e9e7a","#c9542a"];
-let type = "income", entries = [], editId = null, cur = "₹";
+let type = "income", entries = [], editId = null, cur = "₹", lang = "en";
 let viewDate = new Date(); viewDate.setDate(1);
+
+function t(key){ const v = STR[lang][key]; return v!==undefined ? v : STR.en[key]; }
+function catLabel(key){ return lang==="ta" ? (CAT_TA[key]||key) : key; }
 
 function load(){
   try{ entries = JSON.parse(localStorage.getItem("kanakku_entries") || "[]"); }catch(e){ entries = []; }
   try{ cur = localStorage.getItem("kanakku_currency") || "₹"; }catch(e){}
+  try{ lang = localStorage.getItem("kanakku_lang") || "en"; }catch(e){}
   try{ document.documentElement.setAttribute("data-theme", localStorage.getItem("kanakku_theme") || ""); }catch(e){}
 }
 function persist(){ try{ localStorage.setItem("kanakku_entries", JSON.stringify(entries)); }catch(e){} }
@@ -204,17 +287,31 @@ function fmt(n){ return cur + Number(n).toLocaleString("en-IN",{maximumFractionD
 function ym(d){ return d.toISOString().slice(0,7); }
 function fillCats(){
   const sel = document.getElementById("category");
-  sel.innerHTML = CATS[type].map(c=>`<option>${c}</option>`).join("");
+  sel.innerHTML = CAT_KEYS[type].map(c=>`<option value="${c}">${catLabel(c)}</option>`).join("");
 }
+function applyLang(){
+  document.querySelectorAll("[data-i]").forEach(el=>{ el.textContent = t(el.dataset.i); });
+  document.querySelectorAll("[data-iph]").forEach(el=>{ el.placeholder = t(el.dataset.iph); });
+  document.getElementById("langToggle").textContent = lang==="en" ? "EN" : "த";
+  fillCats();
+  updateRemStatus();
+  renderAll();
+}
+document.getElementById("langToggle").onclick=()=>{
+  lang = lang==="en" ? "ta" : "en";
+  try{ localStorage.setItem("kanakku_lang", lang); }catch(e){}
+  applyLang();
+};
+
 document.getElementById("btnIn").onclick=()=>{type="income"; document.getElementById("btnIn").classList.add("on"); document.getElementById("btnEx").classList.remove("on"); fillCats();};
 document.getElementById("btnEx").onclick=()=>{type="expense"; document.getElementById("btnEx").classList.add("on"); document.getElementById("btnIn").classList.remove("on"); fillCats();};
 
-document.querySelectorAll(".tab").forEach(t=>{
-  t.onclick=()=>{
+document.querySelectorAll(".tab").forEach(el=>{
+  el.onclick=()=>{
     document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
     document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));
-    t.classList.add("active");
-    document.getElementById("p-"+t.dataset.t).classList.add("active");
+    el.classList.add("active");
+    document.getElementById("p-"+el.dataset.t).classList.add("active");
     renderAll();
   };
 });
@@ -233,7 +330,7 @@ document.getElementById("save").onclick=()=>{
     if(idx>-1) entries[idx] = {...entries[idx], type, amt, cat, note, date};
     editId = null;
     document.getElementById("cancelEdit").style.display="none";
-    document.getElementById("save").textContent="Save Entry";
+    document.getElementById("save").textContent=t("btnSave");
   } else {
     entries.unshift({id:Date.now(), type, amt, cat, note, date});
   }
@@ -244,7 +341,7 @@ document.getElementById("save").onclick=()=>{
 };
 document.getElementById("cancelEdit").onclick=()=>{
   editId=null; document.getElementById("cancelEdit").style.display="none";
-  document.getElementById("save").textContent="Save Entry";
+  document.getElementById("save").textContent=t("btnSave");
   document.getElementById("amount").value=""; document.getElementById("note").value="";
 };
 function startEdit(id){
@@ -257,7 +354,7 @@ function startEdit(id){
   document.getElementById("date").value = e.date;
   editId = id;
   document.getElementById("cancelEdit").style.display="block";
-  document.getElementById("save").textContent="Update Entry";
+  document.getElementById("save").textContent=t("btnUpdate");
   document.querySelector('.tab[data-t="add"]').click();
 }
 
@@ -273,7 +370,7 @@ function renderStats(){
   document.getElementById("inVal").textContent = fmt(inc);
   document.getElementById("exVal").textContent = fmt(exp);
   document.getElementById("balVal").textContent = fmt(inc-exp);
-  document.getElementById("mLabel").textContent = viewDate.toLocaleDateString("en-IN",{month:"long",year:"numeric"});
+  document.getElementById("mLabel").textContent = viewDate.toLocaleDateString(lang==="ta"?"ta-IN":"en-IN",{month:"long",year:"numeric"});
 }
 
 function renderDonut(){
@@ -282,7 +379,7 @@ function renderDonut(){
   const legend = document.getElementById("legend");
   if(!me.length){
     svg.innerHTML = `<circle cx="60" cy="60" r="50" fill="none" stroke="var(--chip)" stroke-width="16"/>`;
-    legend.innerHTML = '<div style="color:var(--sub)">No expenses this month</div>';
+    legend.innerHTML = `<div style="color:var(--sub)">${t("emptyExpenseMonth")}</div>`;
     return;
   }
   const totals = {};
@@ -302,13 +399,13 @@ function renderDonut(){
   });
   svg.innerHTML = paths + `<circle cx="60" cy="60" r="28" fill="var(--card)"/>`;
   legend.innerHTML = sorted.slice(0,5).map(([cat,val],i)=>
-    `<div><i style="background:${PALETTE[i%PALETTE.length]}"></i>${cat} · ${fmt(val)}</div>`).join("");
+    `<div><i style="background:${PALETTE[i%PALETTE.length]}"></i>${catLabel(cat)} · ${fmt(val)}</div>`).join("");
 }
 
 function renderRecent(){
   const box = document.getElementById("recentList");
   const list = monthEntries().slice(0,5);
-  if(!list.length){ box.innerHTML='<div class="empty">No entries this month yet.</div>'; return; }
+  if(!list.length){ box.innerHTML=`<div class="empty">${t("emptyRecent")}</div>`; return; }
   box.innerHTML = list.map(entryRow).join("");
   bindRowActions(box);
 }
@@ -316,7 +413,7 @@ function renderRecent(){
 function entryRow(e){
   return `<div class="entry">
     <div class="dot ${e.type==='income'?'in':'ex'}"></div>
-    <div class="meta"><div class="cat">${e.cat}</div><div class="note">${e.date}${e.note?" · "+e.note:""}</div></div>
+    <div class="meta"><div class="cat">${catLabel(e.cat)}</div><div class="note">${e.date}${e.note?" · "+e.note:""}</div></div>
     <div class="amt ${e.type==='income'?'in':'ex'}">${e.type==='income'?'+':'-'}${fmt(e.amt)}</div>
     <div class="acts"><span class="editb" data-id="${e.id}">✎</span><span class="delb" data-id="${e.id}">✕</span></div>
   </div>`;
@@ -335,10 +432,10 @@ function renderHistory(){
   const ft = document.getElementById("filterType").value;
   let list = entries.filter(e=>{
     if(ft!=="all" && e.type!==ft) return false;
-    if(q && !(e.cat.toLowerCase().includes(q) || e.note.toLowerCase().includes(q))) return false;
+    if(q && !(e.cat.toLowerCase().includes(q) || catLabel(e.cat).toLowerCase().includes(q) || e.note.toLowerCase().includes(q))) return false;
     return true;
   });
-  if(!list.length){ box.innerHTML='<div class="empty">No matching entries.</div>'; return; }
+  if(!list.length){ box.innerHTML=`<div class="empty">${t("emptyHistory")}</div>`; return; }
   box.innerHTML = list.map(entryRow).join("");
   bindRowActions(box);
 }
@@ -353,13 +450,13 @@ function renderBudgets(){
   const me = monthEntries().filter(e=>e.type==="expense");
   const spent = {};
   me.forEach(e=> spent[e.cat]=(spent[e.cat]||0)+e.amt);
-  box.innerHTML = CATS.expense.map(cat=>{
+  box.innerHTML = CAT_KEYS.expense.map(cat=>{
     const b = budgets[cat]||0;
     const s = spent[cat]||0;
     const pct = b>0 ? Math.min(100,(s/b*100)) : 0;
     const overflow = b>0 && s>b;
     return `<div class="budgetrow">
-      <div class="top"><span>${cat}</span><span class="${overflow?'over':''}">${fmt(s)} / <input type="number" class="bset" data-cat="${cat}" value="${b||''}" placeholder="set ₹" style="width:70px; padding:2px 4px; display:inline; font-size:.8rem"></span></div>
+      <div class="top"><span>${catLabel(cat)}</span><span class="${overflow?'over':''}">${fmt(s)} / <input type="number" class="bset" data-cat="${cat}" value="${b||''}" placeholder="${t('setPh')}" style="width:70px; padding:2px 4px; display:inline; font-size:.8rem"></span></div>
       <div class="bar"><i style="width:${pct}%; background:${overflow?'var(--expense)':'var(--accent)'}"></i></div>
     </div>`;
   }).join("");
@@ -406,43 +503,110 @@ document.getElementById("importFile").onchange=(e)=>{
   reader.onload = ()=>{
     try{
       const data = JSON.parse(reader.result);
-      if(Array.isArray(data)){ entries = data; persist(); renderAll(); alert("Import successful"); }
-    }catch(err){ alert("Invalid file"); }
+      if(Array.isArray(data)){ entries = data; persist(); renderAll(); alert(t("importOk")); }
+    }catch(err){ alert(t("importBad")); }
   };
   reader.readAsText(file);
 };
 document.getElementById("clearAll").onclick=()=>{
-  if(confirm("Erase all entries and budgets? This cannot be undone.")){
+  if(confirm(t("eraseConfirm"))){
     entries = []; persist(); saveBudgets({}); renderAll();
   }
 };
 
 document.getElementById("themeToggle").onclick=()=>{
-  const cur = document.documentElement.getAttribute("data-theme");
-  const next = cur === "dark" ? "light" : (cur === "light" ? "" : "dark");
+  const curT = document.documentElement.getAttribute("data-theme");
+  const next = curT === "dark" ? "light" : (curT === "light" ? "" : "dark");
   document.documentElement.setAttribute("data-theme", next);
   try{ localStorage.setItem("kanakku_theme", next); }catch(e){}
 };
 
+// --- Daily reminder ---
+function loadRem(){ try{ return JSON.parse(localStorage.getItem("kanakku_reminder")||'{"on":false,"time":"20:00"}'); }catch(e){ return {on:false,time:"20:00"}; } }
+function saveRem(r){ try{ localStorage.setItem("kanakku_reminder", JSON.stringify(r)); }catch(e){} }
+function setRemStatus(msg){ document.getElementById("remStatus").textContent = msg; }
+function initReminderUI(){
+  const r = loadRem();
+  document.getElementById("remTime").value = r.time;
+  toggleRemButtons(r.on);
+  updateRemStatus();
+}
+function toggleRemButtons(on){
+  document.getElementById("remOn").classList.toggle("on", on);
+  document.getElementById("remOff").classList.toggle("on", !on);
+}
+function updateRemStatus(){
+  const r = loadRem();
+  if(!("Notification" in window)){ setRemStatus(t("remUnsupported")); return; }
+  if(!r.on){ setRemStatus(t("remOffStatus")); return; }
+  if(Notification.permission==="denied"){ setRemStatus(t("remBlocked")); return; }
+  if(Notification.permission==="default"){ setRemStatus(t("remDefault")); return; }
+  setRemStatus(t("remOnStatus")(r.time));
+}
+document.getElementById("remOn").onclick=async ()=>{
+  if("Notification" in window && Notification.permission==="default"){
+    const perm = await Notification.requestPermission();
+    if(perm!=="granted"){ toggleRemButtons(false); updateRemStatus(); return; }
+  }
+  const r = loadRem(); r.on = true; r.time = document.getElementById("remTime").value; saveRem(r);
+  toggleRemButtons(true); updateRemStatus();
+};
+document.getElementById("remOff").onclick=()=>{
+  const r = loadRem(); r.on = false; saveRem(r);
+  toggleRemButtons(false); updateRemStatus();
+};
+document.getElementById("remTime").onchange=()=>{
+  const r = loadRem(); r.time = document.getElementById("remTime").value; saveRem(r);
+  updateRemStatus();
+};
+function hasLoggedToday(){
+  const today = new Date().toISOString().slice(0,10);
+  return entries.some(e=>e.date===today);
+}
+function checkReminder(){
+  const r = loadRem();
+  if(!r.on || !("Notification" in window) || Notification.permission!=="granted") return;
+  const now = new Date();
+  const [hh,mm] = r.time.split(":").map(Number);
+  const todayKey = now.toISOString().slice(0,10);
+  const lastFired = localStorage.getItem("kanakku_rem_last") || "";
+  const reachedTime = now.getHours()>hh || (now.getHours()===hh && now.getMinutes()>=mm);
+  if(reachedTime && lastFired!==todayKey && !hasLoggedToday()){
+    if(navigator.serviceWorker && navigator.serviceWorker.ready){
+      navigator.serviceWorker.ready.then(reg=> reg.showNotification(t("notifTitle"), {body:t("notifBody")}));
+    } else {
+      new Notification(t("notifTitle"), {body:t("notifBody")});
+    }
+    localStorage.setItem("kanakku_rem_last", todayKey);
+  }
+}
+setInterval(checkReminder, 60000);
+
 // init
 load();
-fillCats();
+applyLang();
 document.getElementById("date").value = new Date().toISOString().slice(0,10);
 document.getElementById("currencySym").value = cur;
-renderAll();
+initReminderUI();
+checkReminder();
 
 // --- PWA: manifest + service worker ---
 try{
+  const iconSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192"><rect width="192" height="192" rx="42" fill="%231b7a5e"/><circle cx="96" cy="96" r="72" fill="none" stroke="%23c98a1f" stroke-width="6"/><text x="96" y="130" font-size="100" text-anchor="middle" fill="white" font-family="Noto Sans Tamil, serif">%E0%AE%95</text></svg>';
   const manifest = {
     name:"Kanakku — Income & Expense Manager", short_name:"Kanakku",
     start_url:".", display:"standalone",
     background_color:"#f6f5f1", theme_color:"#1b7a5e",
-    icons:[{src:"data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192"><rect width="192" height="192" rx="36" fill="%231b7a5e"/><text x="96" y="126" font-size="100" text-anchor="middle" fill="white" font-family="sans-serif">₹</text></svg>'), sizes:"192x192", type:"image/svg+xml"}]
+    icons:[{src:"data:image/svg+xml,"+iconSvg, sizes:"192x192", type:"image/svg+xml"}]
   };
   const link = document.createElement("link");
   link.rel="manifest";
   link.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)],{type:"application/json"}));
   document.head.appendChild(link);
+  const favicon = document.createElement("link");
+  favicon.rel = "icon";
+  favicon.href = "data:image/svg+xml,"+iconSvg;
+  document.head.appendChild(favicon);
   if("serviceWorker" in navigator){
     const swCode = `
       self.addEventListener('install', e => self.skipWaiting());
