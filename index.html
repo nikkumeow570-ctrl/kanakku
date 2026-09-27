@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kanakku — Income &amp; Expense Manager</title>
+<meta name="theme-color" content="#1b7a5e">
+<style>
+:root{
+  --bg:#f6f5f1; --card:#ffffff; --text:#1c1c1c; --sub:#6b6b6b;
+  --line:#e7e5df; --income:#1b7a5e; --expense:#b3452c; --accent:#1b7a5e;
+  --accent-ink:#ffffff; --chip:#f0efe9; --warn:#c98a1f;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141519; --card:#1e1f24; --text:#f1f0ec; --sub:#9a9a9a;
+    --line:#2c2d32; --chip:#26272c; --accent-ink:#0d0d0d;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141519; --card:#1e1f24; --text:#f1f0ec; --sub:#9a9a9a;
+  --line:#2c2d32; --chip:#26272c; --accent-ink:#0d0d0d;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{height:100%}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  max-width:480px; margin-inline:auto; padding:14px 14px 90px;
+}
+header{
+  position:sticky; top:env(safe-area-inset-top,0px); background:var(--bg);
+  padding:10px 2px 10px; z-index:5; display:flex; justify-content:space-between; align-items:center;
+}
+h1{font-size:1.2rem; margin:0; letter-spacing:.2px; display:flex; align-items:center; gap:6px}
+h1 span{font-size:1.3rem}
+.themebtn{border:1px solid var(--line); background:var(--card); color:var(--text); width:34px; height:34px; border-radius:10px; font-size:1rem}
+.monthbar{display:flex; align-items:center; justify-content:space-between; margin:4px 2px 12px}
+.monthbar button{background:var(--chip); border:none; color:var(--text); width:30px; height:30px; border-radius:8px; font-size:1rem}
+.monthbar .mlabel{font-weight:700; font-size:.95rem}
+.cards{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 0 12px}
+.stat{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px}
+.stat .label{font-size:.7rem; color:var(--sub); text-transform:uppercase; letter-spacing:.5px}
+.stat .val{font-size:1.25rem; font-weight:700; margin-top:4px}
+.balance{grid-column:1/3; text-align:center}
+.balance .val{font-size:1.7rem}
+.income .val{color:var(--income)}
+.expense .val{color:var(--expense)}
+.tabs{display:flex; gap:5px; margin:6px 0 10px; background:var(--chip); padding:4px; border-radius:12px; overflow-x:auto}
+.tab{flex:1; text-align:center; padding:8px 4px; border-radius:9px; font-size:.78rem; color:var(--sub); cursor:pointer; white-space:nowrap}
+.tab.active{background:var(--card); color:var(--text); font-weight:600}
+.panel{display:none}
+.panel.active{display:block}
+.card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:10px}
+label{font-size:.78rem; color:var(--sub); display:block; margin:10px 0 4px}
+input,select{
+  width:100%; padding:11px; border-radius:10px; border:1px solid var(--line);
+  background:var(--bg); color:var(--text); font-size:.95rem;
+}
+.seg{display:flex; gap:8px; margin-top:4px}
+.seg button{flex:1; padding:10px; border-radius:10px; border:1px solid var(--line); background:var(--bg); color:var(--sub); font-weight:600; font-size:.85rem}
+.seg button.on.in{background:var(--income); color:#fff; border-color:var(--income)}
+.seg button.on.ex{background:var(--expense); color:#fff; border-color:var(--expense)}
+.submit{margin-top:14px; width:100%; padding:13px; border:none; border-radius:12px; background:var(--accent); color:var(--accent-ink); font-weight:700; font-size:.95rem}
+.ghost{margin-top:8px; width:100%; padding:11px; border:1px solid var(--line); border-radius:12px; background:transparent; color:var(--sub); font-weight:600; font-size:.85rem}
+.searchrow{display:flex; gap:8px; margin-bottom:10px}
+.searchrow input{flex:2} .searchrow select{flex:1}
+.entry{display:flex; align-items:center; gap:10px; padding:10px 2px; border-bottom:1px solid var(--line)}
+.entry:last-child{border-bottom:none}
+.dot{width:8px; height:8px; border-radius:50%; flex-shrink:0}
+.dot.in{background:var(--income)} .dot.ex{background:var(--expense)}
+.entry .meta{flex:1; min-width:0}
+.entry .cat{font-weight:600; font-size:.9rem}
+.entry .note{color:var(--sub); font-size:.75rem; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.entry .amt{font-weight:700; font-size:.9rem; white-space:nowrap}
+.entry .amt.in{color:var(--income)} .entry .amt.ex{color:var(--expense)}
+.entry .acts{display:flex; gap:6px}
+.entry .acts span{color:var(--sub); font-size:1rem; padding:4px; opacity:.7}
+.empty{text-align:center; color:var(--sub); padding:30px 10px; font-size:.85rem}
+.catrow{display:flex; justify-content:space-between; align-items:center; font-size:.85rem; padding:7px 0; gap:8px}
+.catrow .bar{flex:1; height:6px; background:var(--chip); border-radius:4px; overflow:hidden}
+.catrow .bar i{display:block; height:100%; background:var(--expense); border-radius:4px}
+.section-title{font-size:.75rem; color:var(--sub); text-transform:uppercase; letter-spacing:.4px; margin:16px 2px 8px}
+.donutwrap{display:flex; align-items:center; gap:16px}
+.legend{flex:1; font-size:.78rem}
+.legend div{display:flex; align-items:center; gap:6px; margin:4px 0}
+.legend i{width:9px; height:9px; border-radius:50%; display:inline-block}
+.budgetrow{margin-bottom:14px}
+.budgetrow .top{display:flex; justify-content:space-between; font-size:.85rem; margin-bottom:4px}
+.budgetrow .bar{height:8px; background:var(--chip); border-radius:5px; overflow:hidden}
+.budgetrow .bar i{display:block; height:100%; border-radius:5px}
+.over{color:var(--expense) !important}
+.iconbtn{display:flex; gap:8px; align-items:center}
+.filerow{display:flex; gap:8px}
+.filerow button{flex:1}
+</style>
+</head>
+<body>
+<header>
+  <h1><span>💰</span>Kanakku</h1>
+  <button class="themebtn" id="themeToggle">🌓</button>
+</header>
+
+<div class="monthbar">
+  <button id="prevM">‹</button>
+  <div class="mlabel" id="mLabel">—</div>
+  <button id="nextM">›</button>
+</div>
+
+<div class="cards">
+  <div class="stat balance"><div class="label">Balance</div><div class="val" id="balVal">₹0</div></div>
+  <div class="stat income"><div class="label">Income</div><div class="val" id="inVal">₹0</div></div>
+  <div class="stat expense"><div class="label">Expense</div><div class="val" id="exVal">₹0</div></div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" data-t="dash">Dashboard</div>
+  <div class="tab" data-t="add">Add</div>
+  <div class="tab" data-t="history">History</div>
+  <div class="tab" data-t="budgets">Budgets</div>
+  <div class="tab" data-t="data">Data</div>
+</div>
+
+<div class="panel active" id="p-dash">
+  <div class="section-title">Expense breakdown</div>
+  <div class="card">
+    <div class="donutwrap">
+      <svg id="donut" width="120" height="120" viewBox="0 0 120 120"></svg>
+      <div class="legend" id="legend"></div>
+    </div>
+  </div>
+  <div class="section-title">Recent</div>
+  <div class="card" id="recentList"></div>
+</div>
+
+<div class="panel" id="p-add">
+  <div class="card">
+    <div class="seg">
+      <button type="button" id="btnIn" class="on in">↓ Income</button>
+      <button type="button" id="btnEx" class="ex">↑ Expense</button>
+    </div>
+    <label>Amount (₹)</label>
+    <input type="number" id="amount" inputmode="decimal" placeholder="0">
+    <label>Category</label>
+    <select id="category"></select>
+    <label>Note (optional)</label>
+    <input type="text" id="note" placeholder="e.g. tailoring order, milk, electricity">
+    <label>Date</label>
+    <input type="date" id="date">
+    <button class="submit" id="save">Save Entry</button>
+    <button class="ghost" id="cancelEdit" style="display:none">Cancel edit</button>
+  </div>
+</div>
+
+<div class="panel" id="p-history">
+  <div class="searchrow">
+    <input type="text" id="search" placeholder="Search notes/category">
+    <select id="filterType"><option value="all">All</option><option value="income">Income</option><option value="expense">Expense</option></select>
+  </div>
+  <div class="card" id="historyList"></div>
+</div>
+
+<div class="panel" id="p-budgets">
+  <div class="section-title">Monthly budgets by category</div>
+  <div class="card" id="budgetsList"></div>
+</div>
+
+<div class="panel" id="p-data">
+  <div class="card">
+    <div class="section-title" style="margin-top:0">Currency symbol</div>
+    <input type="text" id="currencySym" maxlength="3" placeholder="₹">
+    <div class="section-title">Backup</div>
+    <div class="filerow">
+      <button class="ghost" id="exportCsv">Export CSV</button>
+      <button class="ghost" id="exportJson">Export JSON</button>
+    </div>
+    <label>Import JSON backup</label>
+    <input type="file" id="importFile" accept="application/json">
+    <div class="section-title">Danger zone</div>
+    <button class="ghost" id="clearAll" style="color:var(--expense); border-color:var(--expense)">Erase all data</button>
+  </div>
+</div>
+
+<script>
+const CATS = {
+  income: ["Business Income","Household Allowance","Freelance/Order Payment","Gift/Other Income"],
+  expense: ["Groceries","Utilities (electricity/water/gas)","Rent","Business Expense","Transport","Health","Education/Children","Savings/Investment","Other"]
+};
+const PALETTE = ["#b3452c","#c98a1f","#1b7a5e","#3d6fb4","#8a4fb3","#b34f8c","#5a5a5a","#2e9e7a","#c9542a"];
+let type = "income", entries = [], editId = null, cur = "₹";
+let viewDate = new Date(); viewDate.setDate(1);
+
+function load(){
+  try{ entries = JSON.parse(localStorage.getItem("kanakku_entries") || "[]"); }catch(e){ entries = []; }
+  try{ cur = localStorage.getItem("kanakku_currency") || "₹"; }catch(e){}
+  try{ document.documentElement.setAttribute("data-theme", localStorage.getItem("kanakku_theme") || ""); }catch(e){}
+}
+function persist(){ try{ localStorage.setItem("kanakku_entries", JSON.stringify(entries)); }catch(e){} }
+function fmt(n){ return cur + Number(n).toLocaleString("en-IN",{maximumFractionDigits:0}); }
+function ym(d){ return d.toISOString().slice(0,7); }
+function fillCats(){
+  const sel = document.getElementById("category");
+  sel.innerHTML = CATS[type].map(c=>`<option>${c}</option>`).join("");
+}
+document.getElementById("btnIn").onclick=()=>{type="income"; document.getElementById("btnIn").classList.add("on"); document.getElementById("btnEx").classList.remove("on"); fillCats();};
+document.getElementById("btnEx").onclick=()=>{type="expense"; document.getElementById("btnEx").classList.add("on"); document.getElementById("btnIn").classList.remove("on"); fillCats();};
+
+document.querySelectorAll(".tab").forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));
+    t.classList.add("active");
+    document.getElementById("p-"+t.dataset.t).classList.add("active");
+    renderAll();
+  };
+});
+
+document.getElementById("prevM").onclick=()=>{ viewDate.setMonth(viewDate.getMonth()-1); renderAll(); };
+document.getElementById("nextM").onclick=()=>{ viewDate.setMonth(viewDate.getMonth()+1); renderAll(); };
+
+document.getElementById("save").onclick=()=>{
+  const amt = parseFloat(document.getElementById("amount").value);
+  if(!amt || amt<=0){ document.getElementById("amount").focus(); return; }
+  const cat = document.getElementById("category").value;
+  const note = document.getElementById("note").value.trim();
+  const date = document.getElementById("date").value || new Date().toISOString().slice(0,10);
+  if(editId){
+    const idx = entries.findIndex(e=>e.id===editId);
+    if(idx>-1) entries[idx] = {...entries[idx], type, amt, cat, note, date};
+    editId = null;
+    document.getElementById("cancelEdit").style.display="none";
+    document.getElementById("save").textContent="Save Entry";
+  } else {
+    entries.unshift({id:Date.now(), type, amt, cat, note, date});
+  }
+  persist();
+  document.getElementById("amount").value="";
+  document.getElementById("note").value="";
+  document.querySelector('.tab[data-t="history"]').click();
+};
+document.getElementById("cancelEdit").onclick=()=>{
+  editId=null; document.getElementById("cancelEdit").style.display="none";
+  document.getElementById("save").textContent="Save Entry";
+  document.getElementById("amount").value=""; document.getElementById("note").value="";
+};
+function startEdit(id){
+  const e = entries.find(x=>x.id===id); if(!e) return;
+  type = e.type;
+  document.getElementById(type==="income"?"btnIn":"btnEx").click();
+  document.getElementById("amount").value = e.amt;
+  document.getElementById("category").value = e.cat;
+  document.getElementById("note").value = e.note;
+  document.getElementById("date").value = e.date;
+  editId = id;
+  document.getElementById("cancelEdit").style.display="block";
+  document.getElementById("save").textContent="Update Entry";
+  document.querySelector('.tab[data-t="add"]').click();
+}
+
+function monthEntries(){
+  const my = ym(viewDate);
+  return entries.filter(e=>e.date.slice(0,7)===my);
+}
+
+function renderStats(){
+  const me = monthEntries();
+  let inc=0, exp=0;
+  me.forEach(e=> e.type==="income" ? inc+=e.amt : exp+=e.amt);
+  document.getElementById("inVal").textContent = fmt(inc);
+  document.getElementById("exVal").textContent = fmt(exp);
+  document.getElementById("balVal").textContent = fmt(inc-exp);
+  document.getElementById("mLabel").textContent = viewDate.toLocaleDateString("en-IN",{month:"long",year:"numeric"});
+}
+
+function renderDonut(){
+  const me = monthEntries().filter(e=>e.type==="expense");
+  const svg = document.getElementById("donut");
+  const legend = document.getElementById("legend");
+  if(!me.length){
+    svg.innerHTML = `<circle cx="60" cy="60" r="50" fill="none" stroke="var(--chip)" stroke-width="16"/>`;
+    legend.innerHTML = '<div style="color:var(--sub)">No expenses this month</div>';
+    return;
+  }
+  const totals = {};
+  me.forEach(e=> totals[e.cat] = (totals[e.cat]||0)+e.amt);
+  const sorted = Object.entries(totals).sort((a,b)=>b[1]-a[1]);
+  const total = sorted.reduce((s,[,v])=>s+v,0);
+  let acc = 0, paths = "";
+  sorted.forEach(([cat,val],i)=>{
+    const frac = val/total;
+    const start = acc*2*Math.PI - Math.PI/2;
+    acc += frac;
+    const end = acc*2*Math.PI - Math.PI/2;
+    const x1=60+50*Math.cos(start), y1=60+50*Math.sin(start);
+    const x2=60+50*Math.cos(end), y2=60+50*Math.sin(end);
+    const large = frac>0.5?1:0;
+    paths += `<path d="M60,60 L${x1.toFixed(2)},${y1.toFixed(2)} A50,50 0 ${large} 1 ${x2.toFixed(2)},${y2.toFixed(2)} Z" fill="${PALETTE[i%PALETTE.length]}"/>`;
+  });
+  svg.innerHTML = paths + `<circle cx="60" cy="60" r="28" fill="var(--card)"/>`;
+  legend.innerHTML = sorted.slice(0,5).map(([cat,val],i)=>
+    `<div><i style="background:${PALETTE[i%PALETTE.length]}"></i>${cat} · ${fmt(val)}</div>`).join("");
+}
+
+function renderRecent(){
+  const box = document.getElementById("recentList");
+  const list = monthEntries().slice(0,5);
+  if(!list.length){ box.innerHTML='<div class="empty">No entries this month yet.</div>'; return; }
+  box.innerHTML = list.map(entryRow).join("");
+  bindRowActions(box);
+}
+
+function entryRow(e){
+  return `<div class="entry">
+    <div class="dot ${e.type==='income'?'in':'ex'}"></div>
+    <div class="meta"><div class="cat">${e.cat}</div><div class="note">${e.date}${e.note?" · "+e.note:""}</div></div>
+    <div class="amt ${e.type==='income'?'in':'ex'}">${e.type==='income'?'+':'-'}${fmt(e.amt)}</div>
+    <div class="acts"><span class="editb" data-id="${e.id}">✎</span><span class="delb" data-id="${e.id}">✕</span></div>
+  </div>`;
+}
+function bindRowActions(box){
+  box.querySelectorAll(".editb").forEach(b=> b.onclick=()=>startEdit(Number(b.dataset.id)));
+  box.querySelectorAll(".delb").forEach(b=> b.onclick=()=>{
+    entries = entries.filter(e=>e.id != Number(b.dataset.id));
+    persist(); renderAll();
+  });
+}
+
+function renderHistory(){
+  const box = document.getElementById("historyList");
+  const q = document.getElementById("search").value.trim().toLowerCase();
+  const ft = document.getElementById("filterType").value;
+  let list = entries.filter(e=>{
+    if(ft!=="all" && e.type!==ft) return false;
+    if(q && !(e.cat.toLowerCase().includes(q) || e.note.toLowerCase().includes(q))) return false;
+    return true;
+  });
+  if(!list.length){ box.innerHTML='<div class="empty">No matching entries.</div>'; return; }
+  box.innerHTML = list.map(entryRow).join("");
+  bindRowActions(box);
+}
+document.getElementById("search").oninput = renderHistory;
+document.getElementById("filterType").onchange = renderHistory;
+
+function loadBudgets(){ try{ return JSON.parse(localStorage.getItem("kanakku_budgets")||"{}"); }catch(e){ return {}; } }
+function saveBudgets(b){ try{ localStorage.setItem("kanakku_budgets", JSON.stringify(b)); }catch(e){} }
+function renderBudgets(){
+  const box = document.getElementById("budgetsList");
+  const budgets = loadBudgets();
+  const me = monthEntries().filter(e=>e.type==="expense");
+  const spent = {};
+  me.forEach(e=> spent[e.cat]=(spent[e.cat]||0)+e.amt);
+  box.innerHTML = CATS.expense.map(cat=>{
+    const b = budgets[cat]||0;
+    const s = spent[cat]||0;
+    const pct = b>0 ? Math.min(100,(s/b*100)) : 0;
+    const overflow = b>0 && s>b;
+    return `<div class="budgetrow">
+      <div class="top"><span>${cat}</span><span class="${overflow?'over':''}">${fmt(s)} / <input type="number" class="bset" data-cat="${cat}" value="${b||''}" placeholder="set ₹" style="width:70px; padding:2px 4px; display:inline; font-size:.8rem"></span></div>
+      <div class="bar"><i style="width:${pct}%; background:${overflow?'var(--expense)':'var(--accent)'}"></i></div>
+    </div>`;
+  }).join("");
+  box.querySelectorAll(".bset").forEach(inp=>{
+    inp.onchange=()=>{
+      const bb = loadBudgets();
+      bb[inp.dataset.cat] = parseFloat(inp.value)||0;
+      saveBudgets(bb);
+      renderBudgets();
+    };
+  });
+}
+
+function renderAll(){
+  renderStats(); renderDonut(); renderRecent(); renderHistory(); renderBudgets();
+}
+
+document.getElementById("currencySym").oninput=(e)=>{
+  cur = e.target.value || "₹";
+  try{ localStorage.setItem("kanakku_currency", cur); }catch(err){}
+  renderAll();
+};
+
+document.getElementById("exportCsv").onclick=()=>{
+  const rows = [["Date","Type","Category","Amount","Note"]].concat(
+    entries.map(e=>[e.date,e.type,e.cat,e.amt,e.note])
+  );
+  const csv = rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(",")).join("\n");
+  downloadBlob(csv, "kanakku-export.csv", "text/csv");
+};
+document.getElementById("exportJson").onclick=()=>{
+  downloadBlob(JSON.stringify(entries,null,2), "kanakku-backup.json", "application/json");
+};
+function downloadBlob(content, filename, mime){
+  const blob = new Blob([content],{type:mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href=url; a.download=filename; a.click();
+  URL.revokeObjectURL(url);
+}
+document.getElementById("importFile").onchange=(e)=>{
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const data = JSON.parse(reader.result);
+      if(Array.isArray(data)){ entries = data; persist(); renderAll(); alert("Import successful"); }
+    }catch(err){ alert("Invalid file"); }
+  };
+  reader.readAsText(file);
+};
+document.getElementById("clearAll").onclick=()=>{
+  if(confirm("Erase all entries and budgets? This cannot be undone.")){
+    entries = []; persist(); saveBudgets({}); renderAll();
+  }
+};
+
+document.getElementById("themeToggle").onclick=()=>{
+  const cur = document.documentElement.getAttribute("data-theme");
+  const next = cur === "dark" ? "light" : (cur === "light" ? "" : "dark");
+  document.documentElement.setAttribute("data-theme", next);
+  try{ localStorage.setItem("kanakku_theme", next); }catch(e){}
+};
+
+// init
+load();
+fillCats();
+document.getElementById("date").value = new Date().toISOString().slice(0,10);
+document.getElementById("currencySym").value = cur;
+renderAll();
+
+// --- PWA: manifest + service worker ---
+try{
+  const manifest = {
+    name:"Kanakku — Income & Expense Manager", short_name:"Kanakku",
+    start_url:".", display:"standalone",
+    background_color:"#f6f5f1", theme_color:"#1b7a5e",
+    icons:[{src:"data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192"><rect width="192" height="192" rx="36" fill="%231b7a5e"/><text x="96" y="126" font-size="100" text-anchor="middle" fill="white" font-family="sans-serif">₹</text></svg>'), sizes:"192x192", type:"image/svg+xml"}]
+  };
+  const link = document.createElement("link");
+  link.rel="manifest";
+  link.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)],{type:"application/json"}));
+  document.head.appendChild(link);
+  if("serviceWorker" in navigator){
+    const swCode = `
+      self.addEventListener('install', e => self.skipWaiting());
+      self.addEventListener('activate', e => self.clients.claim());
+      self.addEventListener('fetch', e => { e.respondWith(fetch(e.request).catch(()=>caches.match(e.request))); });
+    `;
+    const swUrl = URL.createObjectURL(new Blob([swCode],{type:"application/javascript"}));
+    navigator.serviceWorker.register(swUrl).catch(()=>{});
+  }
+}catch(e){}
+</script>
+</body>
+</html>
