@@ -205,16 +205,9 @@ input,select{
   <div class="card">
     <div style="font-size:.85rem;line-height:1.5" data-i="aiIntro"></div>
     <div style="font-size:.75rem;color:var(--sub);margin-top:8px;line-height:1.5" data-i="aiPrivacy"></div>
-    <div style="margin-top:12px">
-      <label data-i="aiKeyLbl">Gemini API key (free)</label>
-      <input type="password" id="aiKey" autocomplete="off" placeholder="AIza…">
-      <input type="text" id="aiModel" style="margin-top:8px" placeholder="gemini-2.5-flash">
-      <button class="ghost" id="aiKeySave" data-i="aiKeySave">Save key</button>
-      <div style="font-size:.72rem;color:var(--sub);margin-top:6px;line-height:1.5" data-i="aiKeyHelp"></div>
-    </div>
-    
+    <button class="submit" id="aiSignIn" data-i="aiSignIn">Sign in with Puter</button>
     <div id="aiMain" style="display:none">
-      <div style="font-size:.78rem;margin:12px 0 6px"><a href="#" id="aiSignOut" data-i="aiSignOut" style="color:var(--gold)"></a></div>
+      <div style="font-size:.78rem;color:var(--sub);margin:12px 0 6px"><span data-i="aiSignedAs"></span><b id="aiUser"></b> · <a href="#" id="aiSignOut" data-i="aiSignOut" style="color:var(--gold)"></a></div>
       <button class="submit" id="aiAnalyse" style="margin-top:6px" data-i="aiAnalyse">Analyse this month</button>
       <input type="text" id="aiQ" maxlength="300" data-iph="aiAskPh" style="margin-top:10px">
       <button class="ghost" id="aiAsk" data-i="aiAskBtn">Ask</button>
@@ -300,13 +293,12 @@ input,select{
 const STR = {
 en:{
   tagline:"Your daily income & expense book",
-  tabAi:"AI Advisor", aiIntro:"Get simple, friendly tips on this month's income and spending from an AI advisor.", aiPrivacy:"Only category totals are sent — no names, notes or dates — to Google Gemini, using your own free key.", aiSignedAs:"Signed in as ", aiSignOut:"Remove key", aiAnalyse:"Analyse this month", aiAskPh:"Ask a question, e.g. how can I cut grocery spend?", aiAskBtn:"Ask", aiThinking:"Thinking…", aiError:"The AI couldn't answer. Check your internet and try again.", aiCancel:"Sign-in was cancelled.", aiOffline:"Internet needed.", aiDisclaimer:"AI can be wrong. This is not professional financial advice.", aiKeyLbl:"Gemini API key (free)", aiKeySave:"Save key", aiKeySaved:"Key saved on this phone.", aiKeyHelp:"Get a free key at aistudio.google.com/apikey (no card needed). It is stored only on this phone. On Google's free tier, prompts may be used to improve Google products — only totals are sent.",
-  aboutTitle:"About Kanakku", installBtn:"📲 Install app", aboutFoot:"Free forever · v4f",
+  tabAi:"AI Advisor", aiIntro:"Get simple, friendly tips on this month's income and spending from an AI advisor.", aiPrivacy:"Needs a free Puter account (sign-in opens a popup). Only category totals are sent — no names, notes or dates.", aiSignIn:"Sign in with Puter", aiSignedAs:"Signed in as ", aiSignOut:"Sign out", aiAnalyse:"Analyse this month", aiAskPh:"Ask a question, e.g. how can I cut grocery spend?", aiAskBtn:"Ask", aiThinking:"Thinking…", aiError:"The AI couldn't answer. Check your internet and try again.", aiCancel:"Sign-in was cancelled.", aiOffline:"Internet needed.", aiDisclaimer:"AI can be wrong. This is not professional financial advice.", aboutTitle:"About Kanakku", installBtn:"📲 Install app", aboutFoot:"Free forever · v4g",
   aboutP1:"Kanakku (கணக்கு) means “accounts”. It is a free app for everyone — made by an ordinary middle-class man, for self-employed people, small shopkeepers and homemakers who just want a simple, honest way to track money in and money out.",
   aboutP2:"No ads. No sign-up. No servers. Your entries stay on your own phone; they only leave when you back them up yourself, or when you choose the optional AI advisor (it sends only a short summary of totals).",
   tabLedger:"Udhaar", ledGet:"You'll get", ledOwe:"You owe", ledDirGet:"They owe me", ledDirGive:"I owe them", ledPerson:"Name", ledEmpty:"No udhaar entries yet.", ledDone:"Mark settled",
   nudge:n=>`Last backup ${n} days ago — tap to back up.`, nudgeNever:"No backup yet — tap to back up your data.", deleted:"Entry deleted", undo:"Undo",
-  tabDash:"Home", tabMore:"More", tabCats:"My categories", catIncome:"My income categories", catExpense:"My expense categories", catPh:"e.g. Tuition fees, Tailoring", catAdd:"Add", catNone:"None added yet.", catHelp:"Your categories appear on the Add screen and in Budgets. Deleting one keeps old entries as they are.", aiNeedKey:"Add your free Gemini key above first.", tabAdd:"Add", tabHistory:"History", tabBudgets:"Budgets", tabData:"Backup & Settings",
+  tabDash:"Home", tabMore:"More", tabCats:"My categories", catIncome:"My income categories", catExpense:"My expense categories", catPh:"e.g. Tuition fees, Tailoring", catAdd:"Add", catNone:"None added yet.", catHelp:"Your categories appear on the Add screen and in Budgets. Deleting one keeps old entries as they are.", tabAdd:"Add", tabHistory:"History", tabBudgets:"Budgets", tabData:"Backup & Settings",
   statBalance:"Balance", statIncome:"Income", statExpense:"Expense",
   segIncome:"↓ Income", segExpense:"↑ Expense",
   lblAmount:"Amount (₹)", lblCategory:"Category", lblNote:"Note (optional)",
@@ -333,13 +325,12 @@ en:{
 },
 ta:{
   tagline:"உங்கள் தினசரி வருமானம் & செலவு புத்தகம்",
-  tabAi:"AI ஆலோசகர்", aiIntro:"இந்த மாத வரவு-செலவைப் பார்த்து AI எளிய ஆலோசனை தரும்.", aiPrivacy:"வகை வாரியான மொத்தத் தொகைகள் மட்டுமே அனுப்பப்படும் — பெயர், குறிப்பு, தேதி அனுப்பப்படாது — Google Gemini-க்கு, உங்கள் சொந்த இலவச சாவியைப் பயன்படுத்தி.", aiSignedAs:"உள்நுழைந்தவர்: ", aiSignOut:"சாவியை நீக்கு", aiAnalyse:"இந்த மாதத்தை ஆய்வு செய்", aiAskPh:"கேள்வி கேளுங்கள் (எ.கா. மளிகைச் செலவைக் குறைப்பது எப்படி?)", aiAskBtn:"கேள்", aiThinking:"யோசிக்கிறது…", aiError:"AI பதில் தர முடியவில்லை. இணையத்தைச் சரிபார்த்து மீண்டும் முயலவும்.", aiCancel:"உள்நுழைவு ரத்து செய்யப்பட்டது.", aiOffline:"இணையம் தேவை.", aiDisclaimer:"AI தவறாகவும் இருக்கலாம். இது நிதி ஆலோசனை அல்ல.", aiKeyLbl:"Gemini API சாவி (இலவசம்)", aiKeySave:"சாவியைச் சேமி", aiKeySaved:"சாவி இந்த போனில் சேமிக்கப்பட்டது.", aiKeyHelp:"aistudio.google.com/apikey-ல் இலவச சாவி பெறுங்கள் (கார்டு தேவையில்லை). இது இந்த போனில் மட்டுமே சேமிக்கப்படும். Google-ன் இலவச பிரிவில் கேள்விகள் Google தயாரிப்புகளை மேம்படுத்தப் பயன்படலாம் — மொத்தத் தொகைகள் மட்டுமே அனுப்பப்படும்.",
-  aboutTitle:"கணக்கு பற்றி", installBtn:"📲 செயலியை நிறுவு", aboutFoot:"என்றும் இலவசம் · v4f",
+  tabAi:"AI ஆலோசகர்", aiIntro:"இந்த மாத வரவு-செலவைப் பார்த்து AI எளிய ஆலோசனை தரும்.", aiPrivacy:"இலவச Puter கணக்கு தேவை (உள்நுழைவு popup-ல் திறக்கும்). வகை வாரியான மொத்தத் தொகைகள் மட்டுமே அனுப்பப்படும் — பெயர், குறிப்பு, தேதி அனுப்பப்படாது.", aiSignIn:"Puter மூலம் உள்நுழை", aiSignedAs:"உள்நுழைந்தவர்: ", aiSignOut:"வெளியேறு", aiAnalyse:"இந்த மாதத்தை ஆய்வு செய்", aiAskPh:"கேள்வி கேளுங்கள் (எ.கா. மளிகைச் செலவைக் குறைப்பது எப்படி?)", aiAskBtn:"கேள்", aiThinking:"யோசிக்கிறது…", aiError:"AI பதில் தர முடியவில்லை. இணையத்தைச் சரிபார்த்து மீண்டும் முயலவும்.", aiCancel:"உள்நுழைவு ரத்து செய்யப்பட்டது.", aiOffline:"இணையம் தேவை.", aiDisclaimer:"AI தவறாகவும் இருக்கலாம். இது நிதி ஆலோசனை அல்ல.", aboutTitle:"கணக்கு பற்றி", installBtn:"📲 செயலியை நிறுவு", aboutFoot:"என்றும் இலவசம் · v4g",
   aboutP1:"கணக்கு — அனைவருக்கும் இலவசம். ஒரு சாதாரண நடுத்தரக் குடும்பத்து மனிதரால், சுயதொழில் செய்வோர், சிறு கடைக்காரர்கள், இல்லத்தரசிகள் போன்றோர் வரவு-செலவை எளிமையாகக் கணக்கு வைக்க உருவாக்கப்பட்டது.",
   aboutP2:"விளம்பரம் இல்லை. பதிவு தேவையில்லை. சர்வர் இல்லை. உங்கள் பதிவுகள் உங்கள் போனிலேயே இருக்கும்; நீங்கள் காப்புப்பிரதி எடுத்தால் அல்லது விருப்பமான AI ஆலோசகரைப் பயன்படுத்தினால் (மொத்தத் தொகைகள் மட்டுமே அனுப்பப்படும்) மட்டுமே வெளியே செல்லும்.",
   tabLedger:"கடன்", ledGet:"வர வேண்டியது", ledOwe:"கொடுக்க வேண்டியது", ledDirGet:"அவர் தர வேண்டும்", ledDirGive:"நான் தர வேண்டும்", ledPerson:"பெயர்", ledEmpty:"கடன் பதிவுகள் இல்லை.", ledDone:"தீர்க்கப்பட்டது",
   nudge:n=>`கடைசி காப்புப்பிரதி ${n} நாட்களுக்கு முன் — தொட்டு சேமிக்கவும்.`, nudgeNever:"இன்னும் காப்புப்பிரதி இல்லை — தொட்டு சேமிக்கவும்.", deleted:"பதிவு நீக்கப்பட்டது", undo:"செயல்நீக்கு",
-  tabDash:"முகப்பு", tabMore:"மேலும்", tabCats:"என் வகைகள்", catIncome:"என் வருமான வகைகள்", catExpense:"என் செலவு வகைகள்", catPh:"எ.கா. டியூஷன் கட்டணம், தையல்", catAdd:"சேர்", catNone:"இன்னும் எதுவும் சேர்க்கவில்லை.", catHelp:"நீங்கள் சேர்த்த வகைகள் 'சேர்' திரையிலும் பட்ஜெட்டிலும் தோன்றும். நீக்கினாலும் பழைய பதிவுகள் மாறாது.", aiNeedKey:"முதலில் மேலே உங்கள் இலவச Gemini சாவியைச் சேர்க்கவும்.", tabAdd:"சேர்", tabHistory:"வரலாறு", tabBudgets:"பட்ஜெட்", tabData:"காப்புப்பிரதி & அமைப்புகள்",
+  tabDash:"முகப்பு", tabMore:"மேலும்", tabCats:"என் வகைகள்", catIncome:"என் வருமான வகைகள்", catExpense:"என் செலவு வகைகள்", catPh:"எ.கா. டியூஷன் கட்டணம், தையல்", catAdd:"சேர்", catNone:"இன்னும் எதுவும் சேர்க்கவில்லை.", catHelp:"நீங்கள் சேர்த்த வகைகள் 'சேர்' திரையிலும் பட்ஜெட்டிலும் தோன்றும். நீக்கினாலும் பழைய பதிவுகள் மாறாது.", tabAdd:"சேர்", tabHistory:"வரலாறு", tabBudgets:"பட்ஜெட்", tabData:"காப்புப்பிரதி & அமைப்புகள்",
   statBalance:"இருப்பு", statIncome:"வருமானம்", statExpense:"செலவு",
   segIncome:"↓ வருமானம்", segExpense:"↑ செலவு",
   lblAmount:"தொகை (₹)", lblCategory:"வகை", lblNote:"குறிப்பு (விரும்பினால்)",
@@ -443,7 +434,7 @@ document.getElementById("btnIn").onclick=()=>{type="income"; document.getElement
 document.getElementById("btnEx").onclick=()=>{type="expense"; document.getElementById("btnEx").classList.add("on"); document.getElementById("btnIn").classList.remove("on"); fillCats();};
 
 const SUB=["budgets","ai","data","cats"];
-function go(n){ document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active")); document.getElementById("p-"+n).classList.add("active"); const g=SUB.includes(n)?"more":n; document.querySelectorAll("#bnav .tab").forEach(x=>x.classList.toggle("active",x.dataset.t===g)); if(n==="ai") aiRefresh(); window.scrollTo(0,0); renderAll(); }
+function go(n){ document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active")); document.getElementById("p-"+n).classList.add("active"); const g=SUB.includes(n)?"more":n; document.querySelectorAll("#bnav .tab").forEach(x=>x.classList.toggle("active",x.dataset.t===g)); if(n==="ai") ensurePuter().then(aiRefresh).catch(()=>{}); window.scrollTo(0,0); renderAll(); }
 document.querySelectorAll(".tab").forEach(el=>{ el.onclick=()=>go(el.dataset.t); });
 
 document.getElementById("prevM").onclick=()=>{ viewDate.setMonth(viewDate.getMonth()-1); renderAll(); };
@@ -738,14 +729,15 @@ initReminderUI();
 checkReminder();
 
 function showAi(m){ const o=document.getElementById("aiOut"); o.style.display="block"; o.textContent=m; }
-function getKey(){ try{ return localStorage.getItem("kanakku_gemini_key")||""; }catch(e){ return ""; } }
-function getModel(){ try{ return localStorage.getItem("kanakku_gemini_model")||"gemini-2.5-flash"; }catch(e){ return "gemini-2.5-flash"; } }
-async function geminiChat(prompt,key){ const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(getModel())}:generateContent`,{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":key},body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})}); const d=await r.json().catch(()=>({})); if(!r.ok) throw new Error((d.error&&d.error.message)||("HTTP "+r.status)); const parts=d.candidates&&d.candidates[0]&&d.candidates[0].content&&d.candidates[0].content.parts; if(!parts) throw new Error("Empty answer"); return parts.map(p=>p.text||"").join(""); }
-function aiRefresh(){ const has=!!getKey(); document.getElementById("aiKey").value=has?"••••••••":""; document.getElementById("aiModel").value=getModel(); document.getElementById("aiMain").style.display=has?"block":"none"; }
-document.getElementById("aiKeySave").onclick=()=>{ const v=document.getElementById("aiKey").value.trim(), m=document.getElementById("aiModel").value.trim()||"gemini-2.5-flash"; try{ localStorage.setItem("kanakku_gemini_model",m); if(v&&!/^•+$/.test(v)) localStorage.setItem("kanakku_gemini_key",v); else if(!v) localStorage.removeItem("kanakku_gemini_key"); }catch(e){} aiRefresh(); showAi(t("aiKeySaved")); };
-document.getElementById("aiSignOut").onclick=(e)=>{ e.preventDefault(); try{ localStorage.removeItem("kanakku_gemini_key"); }catch(err){} document.getElementById("aiOut").style.display="none"; aiRefresh(); };
+try{ localStorage.removeItem("kanakku_gemini_key"); localStorage.removeItem("kanakku_gemini_model"); }catch(e){}
+let puterReady=null;
+function ensurePuter(){ if(window.puter) return Promise.resolve(); if(puterReady) return puterReady; puterReady=new Promise((res,rej)=>{ const sc=document.createElement("script"); sc.src="https://js.puter.com/v2/"; sc.onload=res; sc.onerror=()=>{ puterReady=null; rej(new Error("load")); }; document.head.appendChild(sc); }); return puterReady; }
+async function aiRefresh(){ const signed=!!(window.puter&&puter.auth.isSignedIn()); document.getElementById("aiSignIn").style.display=signed?"none":"block"; document.getElementById("aiMain").style.display=signed?"block":"none"; if(signed){ try{ const u=await puter.auth.getUser(); document.getElementById("aiUser").textContent=u.username||""; }catch(e){} } }
+document.getElementById("aiSignIn").onclick=async()=>{ try{ await ensurePuter(); await puter.auth.signIn(); aiRefresh(); }catch(e){ const code=String((e&&(e.error||e.code))||""); showAi(code.includes("closed")?t("aiCancel"):(navigator.onLine?t("aiError"):t("aiOffline"))); } };
+document.getElementById("aiSignOut").onclick=(e)=>{ e.preventDefault(); try{ puter.auth.signOut(); }catch(err){} document.getElementById("aiOut").style.display="none"; aiRefresh(); };
+function aiText(r){ if(typeof r==="string") return r; const c=r&&r.message&&r.message.content; if(typeof c==="string") return c; if(Array.isArray(c)) return c.map(x=>x.text||"").join(""); return String((r&&r.text)||r); }
 function aiSummary(){ let inc=0,exp=0,get=0,owe=0; const cats={},budgets={},b=loadBudgets(); monthEntries().forEach(e=>{ if(e.type==="income") inc+=e.amt; else { exp+=e.amt; cats[e.cat]=(cats[e.cat]||0)+e.amt; } }); Object.keys(b).forEach(k=>{ if(b[k]>0) budgets[k]={budget:b[k],spent:cats[k]||0}; }); ledger.forEach(l=>{ if(!l.settled){ if(l.dir==="get") get+=l.amt; else owe+=l.amt; } }); return {month:ym(viewDate),currency:cur,income:inc,expense:exp,expenseByCategory:cats,budgets,udhaarToReceive:get,udhaarToPay:owe}; }
-async function aiRun(q){ showAi(t("aiThinking")); try{ const prompt=`You are a friendly, practical money advisor for an ordinary middle-class household or self-employed person in India. Use ONLY the summary below. Give 4-5 short, concrete, actionable tips (saving, overspending, budgets, udhaar). Plain words, encouraging, no jargon. Reply in ${lang==="ta"?"Tamil":"English"}. This is not professional financial advice.\n\nSummary: ${JSON.stringify(aiSummary())}${q?`\n\nUser question: ${q}`:""}`; const key=getKey(); if(!key){ showAi(t("aiNeedKey")); return; } showAi(await geminiChat(prompt,key)); }catch(e){ showAi((navigator.onLine?t("aiError"):t("aiOffline"))+(getKey()&&e&&e.message?"\n\n"+e.message:"")); } }
+async function aiRun(q){ showAi(t("aiThinking")); try{ const prompt=`You are a friendly, practical money advisor for an ordinary middle-class household or self-employed person in India. Use ONLY the summary below. Give 4-5 short, concrete, actionable tips (saving, overspending, budgets, udhaar). Plain words, encouraging, no jargon. Reply in ${lang==="ta"?"Tamil":"English"}. This is not professional financial advice.\n\nSummary: ${JSON.stringify(aiSummary())}${q?`\n\nUser question: ${q}`:""}`; await ensurePuter(); const r=await puter.ai.chat(prompt); showAi(aiText(r)); }catch(e){ showAi((navigator.onLine?t("aiError"):t("aiOffline"))); } }
 document.getElementById("aiAnalyse").onclick=()=>aiRun("");
 document.getElementById("aiAsk").onclick=()=>{ const q=document.getElementById("aiQ").value.trim(); if(q) aiRun(q); };
 let deferredInstall=null;
