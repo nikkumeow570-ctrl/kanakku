@@ -100,6 +100,7 @@ input,select{
 .filerow button{flex:1}
 .toast{display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--text);color:var(--bg);padding:10px 14px;border-radius:12px;gap:14px;align-items:center;font-size:.85rem;z-index:20}.toast button{background:none;border:none;color:var(--gold);font-weight:700}
 #nudge{font-size:.82rem;color:var(--gold);border-color:var(--gold)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.chip{padding:6px 11px;border-radius:16px;border:1px solid var(--line);background:var(--chip);color:var(--text);font-size:.8rem}
 </style>
 </head>
 <body>
@@ -139,6 +140,7 @@ input,select{
   <div class="tab" data-t="data" data-i="tabData">Data</div>
 </div>
 
+<button class="submit" id="installBtn" data-i="installBtn" style="display:none;margin:0 0 10px">📲 Install app</button>
 <div class="card" id="nudge" style="display:none;cursor:pointer"></div>
 <div class="panel active" id="p-dash">
   <div class="section-title" data-i="sectionBreakdown">Expense breakdown</div>
@@ -158,6 +160,7 @@ input,select{
       <button type="button" id="btnIn" class="on in" data-i="segIncome">Income</button>
       <button type="button" id="btnEx" class="ex" data-i="segExpense">Expense</button>
     </div>
+    <div class="chips" id="chips"></div>
     <label data-i="lblAmount">Amount (₹)</label>
     <input type="number" id="amount" inputmode="decimal" placeholder="0">
     <label data-i="lblCategory">Category</label>
@@ -223,6 +226,12 @@ input,select{
     <div class="section-title" data-i="sectionDanger">Danger zone</div>
     <button class="ghost" id="clearAll" data-i="btnErase" style="color:var(--expense); border-color:var(--expense)">Erase all data</button>
   </div>
+  <div class="card">
+    <div class="section-title" data-i="aboutTitle" style="margin-top:0">About Kanakku</div>
+    <div style="font-size:.85rem;line-height:1.5" data-i="aboutP1"></div>
+    <div style="font-size:.85rem;line-height:1.5;margin-top:8px" data-i="aboutP2"></div>
+    <div style="font-size:.72rem;color:var(--sub);margin-top:10px" data-i="aboutFoot"></div>
+  </div>
 </div>
 
 <div id="toast" class="toast"></div>
@@ -230,6 +239,9 @@ input,select{
 const STR = {
 en:{
   tagline:"Your daily income & expense book",
+  aboutTitle:"About Kanakku", installBtn:"📲 Install app", aboutFoot:"Free forever · v4c",
+  aboutP1:"Kanakku (கணக்கு) means “accounts”. It is a free app for everyone — made by an ordinary middle-class man, for self-employed people, small shopkeepers and homemakers who just want a simple, honest way to track money in and money out.",
+  aboutP2:"No ads. No sign-up. No servers. Your entries stay on your own phone; they only leave when you back them up yourself.",
   tabLedger:"Udhaar", ledGet:"You'll get", ledOwe:"You owe", ledDirGet:"They owe me", ledDirGive:"I owe them", ledPerson:"Name", ledEmpty:"No udhaar entries yet.", ledDone:"Mark settled",
   nudge:n=>`Last backup ${n} days ago — tap to back up.`, nudgeNever:"No backup yet — tap to back up your data.", deleted:"Entry deleted", undo:"Undo",
   tabDash:"Dashboard", tabAdd:"Add", tabHistory:"History", tabBudgets:"Budgets", tabData:"Data",
@@ -259,7 +271,10 @@ en:{
 },
 ta:{
   tagline:"உங்கள் தினசரி வருமானம் & செலவு புத்தகம்",
-  tabLedger:"உதார்", ledGet:"வர வேண்டியது", ledOwe:"கொடுக்க வேண்டியது", ledDirGet:"அவர் தர வேண்டும்", ledDirGive:"நான் தர வேண்டும்", ledPerson:"பெயர்", ledEmpty:"உதார் பதிவுகள் இல்லை.", ledDone:"தீர்க்கப்பட்டது",
+  aboutTitle:"கணக்கு பற்றி", installBtn:"📲 செயலியை நிறுவு", aboutFoot:"என்றும் இலவசம் · v4c",
+  aboutP1:"கணக்கு — அனைவருக்கும் இலவசம். ஒரு சாதாரண நடுத்தரக் குடும்பத்து மனிதரால், சுயதொழில் செய்வோர், சிறு கடைக்காரர்கள், இல்லத்தரசிகள் போன்றோர் வரவு-செலவை எளிமையாகக் கணக்கு வைக்க உருவாக்கப்பட்டது.",
+  aboutP2:"விளம்பரம் இல்லை. பதிவு தேவையில்லை. சர்வர் இல்லை. உங்கள் பதிவுகள் உங்கள் போனிலேயே இருக்கும்; நீங்கள் காப்புப்பிரதி எடுத்தால் மட்டுமே வெளியே செல்லும்.",
+  tabLedger:"கடன்", ledGet:"வர வேண்டியது", ledOwe:"கொடுக்க வேண்டியது", ledDirGet:"அவர் தர வேண்டும்", ledDirGive:"நான் தர வேண்டும்", ledPerson:"பெயர்", ledEmpty:"கடன் பதிவுகள் இல்லை.", ledDone:"தீர்க்கப்பட்டது",
   nudge:n=>`கடைசி காப்புப்பிரதி ${n} நாட்களுக்கு முன் — தொட்டு சேமிக்கவும்.`, nudgeNever:"இன்னும் காப்புப்பிரதி இல்லை — தொட்டு சேமிக்கவும்.", deleted:"பதிவு நீக்கப்பட்டது", undo:"செயல்நீக்கு",
   tabDash:"முகப்பு", tabAdd:"சேர்", tabHistory:"வரலாறு", tabBudgets:"பட்ஜெட்", tabData:"தரவு",
   statBalance:"இருப்பு", statIncome:"வருமானம்", statExpense:"செலவு",
@@ -309,7 +324,7 @@ function load(){
   try{ entries = cleanEntries(JSON.parse(localStorage.getItem("kanakku_entries") || "[]")); }catch(e){ entries = []; }
   loadLedger();
   try{ cur = localStorage.getItem("kanakku_currency") || "₹"; }catch(e){}
-  try{ lang = localStorage.getItem("kanakku_lang") || "en"; }catch(e){}
+  try{ lang = localStorage.getItem("kanakku_lang") || ((navigator.language||"").toLowerCase().startsWith("ta")?"ta":"en"); }catch(e){}
   try{ document.documentElement.setAttribute("data-theme", localStorage.getItem("kanakku_theme") || ""); }catch(e){}
 }
 function persist(){ try{ localStorage.setItem("kanakku_entries", JSON.stringify(entries)); }catch(e){} }
@@ -334,7 +349,9 @@ function renderLedger(){ let get=0,owe=0; ledger.forEach(l=>{ if(!l.settled){ if
   box.innerHTML=list.map(l=>`<div class="entry" style="${l.settled?"opacity:.55":""}"><div class="dot ${l.dir==="get"?"in":"ex"}"></div><div class="meta"><div class="cat" style="${l.settled?"text-decoration:line-through":""}">${esc(l.name)}</div><div class="note">${esc(l.date)}${l.note?" · "+esc(l.note):""}</div></div><div class="amt ${l.dir==="get"?"in":"ex"}">${fmt(l.amt)}</div><div class="acts"><span class="ledok" data-id="${l.id}" title="${t("ledDone")}">✓</span><span class="leddel" data-id="${l.id}">✕</span></div></div>`).join("");
   box.querySelectorAll(".ledok").forEach(b=>b.onclick=()=>{ const l=ledger.find(x=>x.id===Number(b.dataset.id)); if(l){ l.settled=!l.settled; saveLedger(); renderLedger(); renderNudge(); } });
   box.querySelectorAll(".leddel").forEach(b=>b.onclick=()=>{ ledger=ledger.filter(x=>x.id!==Number(b.dataset.id)); saveLedger(); renderLedger(); renderNudge(); }); }
-function fillCats(){
+const CHIPS={expense:[["Milk","பால்","Groceries"],["Vegetables","காய்கறி","Groceries"],["Gas","எரிவாயு","Utilities"],["Electricity","மின்சாரம்","Utilities"],["Bus/Auto","பேருந்து/ஆட்டோ","Transport"],["Medicine","மருந்து","Health"],["School fees","பள்ளிக் கட்டணம்","Education/Children"],["Mobile recharge","ரீசார்ஜ்","Other"]],income:[["Sales","விற்பனை","Business Income"],["Order payment","ஆர்டர் தொகை","Freelance/Order Payment"],["Home allowance","வீட்டுச் செலவு","Household Allowance"]]};
+function renderChips(){ const box=document.getElementById("chips"); box.innerHTML=""; CHIPS[type].forEach(c=>{ const b=document.createElement("button"); b.type="button"; b.className="chip"; b.textContent=lang==="ta"?c[1]:c[0]; b.onclick=()=>{ document.getElementById("category").value=c[2]; document.getElementById("note").value=b.textContent; document.getElementById("amount").focus(); }; box.appendChild(b); }); }
+function fillCats(){ renderChips();
   const sel = document.getElementById("category");
   sel.innerHTML = CAT_KEYS[type].map(c=>`<option value="${c}">${catLabel(c)}</option>`).join("");
 }
@@ -655,6 +672,10 @@ document.getElementById("currencySym").value = cur;
 initReminderUI();
 checkReminder();
 
+let deferredInstall=null;
+window.addEventListener("beforeinstallprompt",e=>{ e.preventDefault(); deferredInstall=e; document.getElementById("installBtn").style.display="block"; });
+window.addEventListener("appinstalled",()=>{ document.getElementById("installBtn").style.display="none"; });
+document.getElementById("installBtn").onclick=async()=>{ if(!deferredInstall) return; deferredInstall.prompt(); await deferredInstall.userChoice; deferredInstall=null; document.getElementById("installBtn").style.display="none"; };
 if("serviceWorker" in navigator){ window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{})); }
 </script>
 </body>
