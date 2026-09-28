@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Kanakku — Income &amp; Expense Manager</title>
 <meta name="theme-color" content="#1b7a5e">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
 :root{
   --bg:#f6f5f1; --card:#ffffff; --text:#1c1c1c; --sub:#6b6b6b;
@@ -95,6 +98,8 @@ input,select{
 .over{color:var(--expense) !important}
 .filerow{display:flex; gap:8px}
 .filerow button{flex:1}
+.toast{display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--text);color:var(--bg);padding:10px 14px;border-radius:12px;gap:14px;align-items:center;font-size:.85rem;z-index:20}.toast button{background:none;border:none;color:var(--gold);font-weight:700}
+#nudge{font-size:.82rem;color:var(--gold);border-color:var(--gold)}
 </style>
 </head>
 <body>
@@ -129,10 +134,12 @@ input,select{
   <div class="tab active" data-t="dash" data-i="tabDash">Dashboard</div>
   <div class="tab" data-t="add" data-i="tabAdd">Add</div>
   <div class="tab" data-t="history" data-i="tabHistory">History</div>
+  <div class="tab" data-t="ledger" data-i="tabLedger">Udhaar</div>
   <div class="tab" data-t="budgets" data-i="tabBudgets">Budgets</div>
   <div class="tab" data-t="data" data-i="tabData">Data</div>
 </div>
 
+<div class="card" id="nudge" style="display:none;cursor:pointer"></div>
 <div class="panel active" id="p-dash">
   <div class="section-title" data-i="sectionBreakdown">Expense breakdown</div>
   <div class="card">
@@ -176,6 +183,18 @@ input,select{
   <div class="card" id="historyList"></div>
 </div>
 
+<div class="panel" id="p-ledger">
+  <div class="cards"><div class="stat income"><div class="label" data-i="ledGet">You'll get</div><div class="val" id="ledGetVal">₹0</div></div><div class="stat expense"><div class="label" data-i="ledOwe">You owe</div><div class="val" id="ledOweVal">₹0</div></div></div>
+  <div class="card">
+    <div class="seg"><button type="button" id="ledDirGet" class="on in" data-i="ledDirGet">They owe me</button><button type="button" id="ledDirGive" class="ex" data-i="ledDirGive">I owe them</button></div>
+    <label data-i="ledPerson">Name</label><input type="text" id="ledName">
+    <label data-i="lblAmount">Amount (₹)</label><input type="number" id="ledAmt" inputmode="decimal">
+    <label data-i="lblNote">Note (optional)</label><input type="text" id="ledNote">
+    <button class="submit" id="ledSave" data-i="btnSave">Save Entry</button>
+  </div>
+  <div class="card" id="ledList"></div>
+</div>
+
 <div class="panel" id="p-budgets">
   <div class="section-title" data-i="sectionBudgets">Monthly budgets by category</div>
   <div class="card" id="budgetsList"></div>
@@ -198,6 +217,7 @@ input,select{
       <button class="ghost" id="exportCsv" data-i="btnExportCsv">Export CSV</button>
       <button class="ghost" id="exportJson" data-i="btnExportJson">Export JSON</button>
     </div>
+    <button class="submit" id="emailBackup" data-i="btnEmailBackup" style="margin-top:8px">Backup to Gmail</button>
     <label data-i="lblImport">Import JSON backup</label>
     <input type="file" id="importFile" accept="application/json">
     <div class="section-title" data-i="sectionDanger">Danger zone</div>
@@ -205,10 +225,13 @@ input,select{
   </div>
 </div>
 
+<div id="toast" class="toast"></div>
 <script>
 const STR = {
 en:{
   tagline:"Your daily income & expense book",
+  tabLedger:"Udhaar", ledGet:"You'll get", ledOwe:"You owe", ledDirGet:"They owe me", ledDirGive:"I owe them", ledPerson:"Name", ledEmpty:"No udhaar entries yet.", ledDone:"Mark settled",
+  nudge:n=>`Last backup ${n} days ago — tap to back up.`, nudgeNever:"No backup yet — tap to back up your data.", deleted:"Entry deleted", undo:"Undo",
   tabDash:"Dashboard", tabAdd:"Add", tabHistory:"History", tabBudgets:"Budgets", tabData:"Data",
   statBalance:"Balance", statIncome:"Income", statExpense:"Expense",
   segIncome:"↓ Income", segExpense:"↑ Expense",
@@ -221,6 +244,8 @@ en:{
   emptyHistory:"No matching entries.", sectionBudgets:"Monthly budgets by category",
   sectionCurrency:"Currency symbol", sectionBackup:"Backup",
   btnExportCsv:"Export CSV", btnExportJson:"Export JSON", lblImport:"Import JSON backup",
+  btnEmailBackup:"Backup to Gmail", emailShareText:"Kanakku backup — save/forward this to keep your data safe.",
+  emailFallback:"Your device doesn't support direct sharing. The backup file downloaded — please attach it manually in Gmail.",
   sectionDanger:"Danger zone", btnErase:"Erase all data",
   sectionReminder:"Daily reminder", btnOn:"On", btnOff:"Off", lblRemindAt:"Remind me at",
   remOffStatus:"Reminder is off.", remUnsupported:"Notifications not supported on this browser.",
@@ -234,6 +259,8 @@ en:{
 },
 ta:{
   tagline:"உங்கள் தினசரி வருமானம் & செலவு புத்தகம்",
+  tabLedger:"உதார்", ledGet:"வர வேண்டியது", ledOwe:"கொடுக்க வேண்டியது", ledDirGet:"அவர் தர வேண்டும்", ledDirGive:"நான் தர வேண்டும்", ledPerson:"பெயர்", ledEmpty:"உதார் பதிவுகள் இல்லை.", ledDone:"தீர்க்கப்பட்டது",
+  nudge:n=>`கடைசி காப்புப்பிரதி ${n} நாட்களுக்கு முன் — தொட்டு சேமிக்கவும்.`, nudgeNever:"இன்னும் காப்புப்பிரதி இல்லை — தொட்டு சேமிக்கவும்.", deleted:"பதிவு நீக்கப்பட்டது", undo:"செயல்நீக்கு",
   tabDash:"முகப்பு", tabAdd:"சேர்", tabHistory:"வரலாறு", tabBudgets:"பட்ஜெட்", tabData:"தரவு",
   statBalance:"இருப்பு", statIncome:"வருமானம்", statExpense:"செலவு",
   segIncome:"↓ வருமானம்", segExpense:"↑ செலவு",
@@ -246,6 +273,8 @@ ta:{
   emptyHistory:"பொருந்தும் பதிவுகள் இல்லை.", sectionBudgets:"மாத பட்ஜெட் (வகை வாரியாக)",
   sectionCurrency:"நாணய சின்னம்", sectionBackup:"காப்புப்பிரதி",
   btnExportCsv:"CSV ஏற்றுமதி", btnExportJson:"JSON ஏற்றுமதி", lblImport:"JSON காப்புப்பிரதியை இறக்குமதி செய்",
+  btnEmailBackup:"Gmail-க்கு காப்புப்பிரதி அனுப்பு", emailShareText:"Kanakku காப்புப்பிரதி — இதை பாதுகாப்பாக சேமிக்கவும்/அனுப்பவும்.",
+  emailFallback:"உங்கள் சாதனம் நேரடி பகிர்வை ஆதரிக்கவில்லை. காப்புப்பிரதி பதிவிறக்கம் ஆனது — Gmail-ல் கைமுறையாக இணைக்கவும்.",
   sectionDanger:"எச்சரிக்கை பகுதி", btnErase:"அனைத்து தரவையும் அழி",
   sectionReminder:"தினசரி நினைவூட்டல்", btnOn:"இயக்கு", btnOff:"நிறுத்து", lblRemindAt:"நினைவூட்டும் நேரம்",
   remOffStatus:"நினைவூட்டல் நிறுத்தப்பட்டுள்ளது.", remUnsupported:"இந்த உலாவியில் அறிவிப்புகள் ஆதரிக்கப்படவில்லை.",
@@ -277,14 +306,34 @@ function t(key){ const v = STR[lang][key]; return v!==undefined ? v : STR.en[key
 function catLabel(key){ return lang==="ta" ? (CAT_TA[key]||key) : key; }
 
 function load(){
-  try{ entries = JSON.parse(localStorage.getItem("kanakku_entries") || "[]"); }catch(e){ entries = []; }
+  try{ entries = cleanEntries(JSON.parse(localStorage.getItem("kanakku_entries") || "[]")); }catch(e){ entries = []; }
+  loadLedger();
   try{ cur = localStorage.getItem("kanakku_currency") || "₹"; }catch(e){}
   try{ lang = localStorage.getItem("kanakku_lang") || "en"; }catch(e){}
   try{ document.documentElement.setAttribute("data-theme", localStorage.getItem("kanakku_theme") || ""); }catch(e){}
 }
 function persist(){ try{ localStorage.setItem("kanakku_entries", JSON.stringify(entries)); }catch(e){} }
 function fmt(n){ return cur + Number(n).toLocaleString("en-IN",{maximumFractionDigits:0}); }
-function ym(d){ return d.toISOString().slice(0,7); }
+function ym(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"); }
+function today(){ const d=new Date(); return ym(d)+"-"+String(d.getDate()).padStart(2,"0"); }
+function esc(x){ return String(x).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function cleanEntries(list){ return list.map((e,i)=>{ const amt=Number(e&&e.amt); if(!e||!(amt>0)||!/^\d{4}-\d{2}-\d{2}$/.test(e.date)) return null; return {id:Number(e.id)||Date.now()+i,type:e.type==="expense"?"expense":"income",amt,cat:String(e.cat||"Other"),note:String(e.note||""),date:e.date}; }).filter(Boolean); }
+function cleanLed(l){ const amt=Number(l&&l.amt), name=String((l&&l.name)||"").slice(0,60); if(!(amt>0)||!name) return null; return {id:Number(l.id)||Date.now(),name,dir:l.dir==="give"?"give":"get",amt,note:String(l.note||""),date:String(l.date||today()),settled:!!l.settled}; }
+let ledger=[], ledDir="get", toastTimer;
+function loadLedger(){ try{ ledger=JSON.parse(localStorage.getItem("kanakku_ledger")||"[]").map(cleanLed).filter(Boolean); }catch(e){ ledger=[]; } }
+function saveLedger(){ try{ localStorage.setItem("kanakku_ledger",JSON.stringify(ledger)); }catch(e){} }
+function markBackup(){ try{ localStorage.setItem("kanakku_last_backup",today()); }catch(e){} renderNudge(); }
+function renderNudge(){ const el=document.getElementById("nudge"); if(!entries.length&&!ledger.length){ el.style.display="none"; return; } let last=""; try{ last=localStorage.getItem("kanakku_last_backup")||""; }catch(e){} const days=last?Math.round((new Date(today())-new Date(last))/864e5):0; if(last&&days<30){ el.style.display="none"; return; } el.textContent=last?t("nudge")(days):t("nudgeNever"); el.style.display="block"; }
+document.getElementById("nudge").onclick=()=>document.querySelector('.tab[data-t="data"]').click();
+function showToast(msg,undoFn){ const el=document.getElementById("toast"); el.innerHTML=""; const sp=document.createElement("span"); sp.textContent=msg; el.appendChild(sp); if(undoFn){ const b=document.createElement("button"); b.textContent=t("undo"); b.onclick=()=>{ undoFn(); el.style.display="none"; }; el.appendChild(b); } el.style.display="flex"; clearTimeout(toastTimer); toastTimer=setTimeout(()=>{ el.style.display="none"; },5000); }
+["Get","Give"].forEach(k=>{ document.getElementById("ledDir"+k).onclick=()=>{ ledDir=k.toLowerCase(); document.getElementById("ledDirGet").classList.toggle("on",ledDir==="get"); document.getElementById("ledDirGive").classList.toggle("on",ledDir==="give"); }; });
+document.getElementById("ledSave").onclick=()=>{ const name=document.getElementById("ledName").value.trim(), amt=parseFloat(document.getElementById("ledAmt").value); if(!name||!(amt>0)) return; ledger.unshift({id:Date.now(),name,dir:ledDir,amt,note:document.getElementById("ledNote").value.trim(),date:today(),settled:false}); saveLedger(); ["ledName","ledAmt","ledNote"].forEach(i=>document.getElementById(i).value=""); renderLedger(); renderNudge(); };
+function renderLedger(){ let get=0,owe=0; ledger.forEach(l=>{ if(!l.settled){ if(l.dir==="get") get+=l.amt; else owe+=l.amt; } }); document.getElementById("ledGetVal").textContent=fmt(get); document.getElementById("ledOweVal").textContent=fmt(owe);
+  const box=document.getElementById("ledList"); if(!ledger.length){ box.innerHTML=`<div class="empty">${t("ledEmpty")}</div>`; return; }
+  const list=[...ledger].sort((a,b)=>a.settled-b.settled);
+  box.innerHTML=list.map(l=>`<div class="entry" style="${l.settled?"opacity:.55":""}"><div class="dot ${l.dir==="get"?"in":"ex"}"></div><div class="meta"><div class="cat" style="${l.settled?"text-decoration:line-through":""}">${esc(l.name)}</div><div class="note">${esc(l.date)}${l.note?" · "+esc(l.note):""}</div></div><div class="amt ${l.dir==="get"?"in":"ex"}">${fmt(l.amt)}</div><div class="acts"><span class="ledok" data-id="${l.id}" title="${t("ledDone")}">✓</span><span class="leddel" data-id="${l.id}">✕</span></div></div>`).join("");
+  box.querySelectorAll(".ledok").forEach(b=>b.onclick=()=>{ const l=ledger.find(x=>x.id===Number(b.dataset.id)); if(l){ l.settled=!l.settled; saveLedger(); renderLedger(); renderNudge(); } });
+  box.querySelectorAll(".leddel").forEach(b=>b.onclick=()=>{ ledger=ledger.filter(x=>x.id!==Number(b.dataset.id)); saveLedger(); renderLedger(); renderNudge(); }); }
 function fillCats(){
   const sel = document.getElementById("category");
   sel.innerHTML = CAT_KEYS[type].map(c=>`<option value="${c}">${catLabel(c)}</option>`).join("");
@@ -324,7 +373,7 @@ document.getElementById("save").onclick=()=>{
   if(!amt || amt<=0){ document.getElementById("amount").focus(); return; }
   const cat = document.getElementById("category").value;
   const note = document.getElementById("note").value.trim();
-  const date = document.getElementById("date").value || new Date().toISOString().slice(0,10);
+  const date = document.getElementById("date").value || today();
   if(editId){
     const idx = entries.findIndex(e=>e.id===editId);
     if(idx>-1) entries[idx] = {...entries[idx], type, amt, cat, note, date};
@@ -399,7 +448,7 @@ function renderDonut(){
   });
   svg.innerHTML = paths + `<circle cx="60" cy="60" r="28" fill="var(--card)"/>`;
   legend.innerHTML = sorted.slice(0,5).map(([cat,val],i)=>
-    `<div><i style="background:${PALETTE[i%PALETTE.length]}"></i>${catLabel(cat)} · ${fmt(val)}</div>`).join("");
+    `<div><i style="background:${PALETTE[i%PALETTE.length]}"></i>${esc(catLabel(cat))} · ${fmt(val)}</div>`).join("");
 }
 
 function renderRecent(){
@@ -413,7 +462,7 @@ function renderRecent(){
 function entryRow(e){
   return `<div class="entry">
     <div class="dot ${e.type==='income'?'in':'ex'}"></div>
-    <div class="meta"><div class="cat">${catLabel(e.cat)}</div><div class="note">${e.date}${e.note?" · "+e.note:""}</div></div>
+    <div class="meta"><div class="cat">${esc(catLabel(e.cat))}</div><div class="note">${esc(e.date)}${e.note?" · "+esc(e.note):""}</div></div>
     <div class="amt ${e.type==='income'?'in':'ex'}">${e.type==='income'?'+':'-'}${fmt(e.amt)}</div>
     <div class="acts"><span class="editb" data-id="${e.id}">✎</span><span class="delb" data-id="${e.id}">✕</span></div>
   </div>`;
@@ -421,8 +470,9 @@ function entryRow(e){
 function bindRowActions(box){
   box.querySelectorAll(".editb").forEach(b=> b.onclick=()=>startEdit(Number(b.dataset.id)));
   box.querySelectorAll(".delb").forEach(b=> b.onclick=()=>{
-    entries = entries.filter(e=>e.id != Number(b.dataset.id));
-    persist(); renderAll();
+    const idx=entries.findIndex(e=>e.id===Number(b.dataset.id)); if(idx<0) return;
+    const [gone]=entries.splice(idx,1); persist(); renderAll();
+    showToast(t("deleted"),()=>{ entries.splice(Math.min(idx,entries.length),0,gone); persist(); renderAll(); });
   });
 }
 
@@ -471,7 +521,7 @@ function renderBudgets(){
 }
 
 function renderAll(){
-  renderStats(); renderDonut(); renderRecent(); renderHistory(); renderBudgets();
+  renderStats(); renderDonut(); renderRecent(); renderHistory(); renderBudgets(); renderLedger(); renderNudge();
 }
 
 document.getElementById("currencySym").oninput=(e)=>{
@@ -488,7 +538,20 @@ document.getElementById("exportCsv").onclick=()=>{
   downloadBlob(csv, "kanakku-export.csv", "text/csv");
 };
 document.getElementById("exportJson").onclick=()=>{
-  downloadBlob(JSON.stringify(entries,null,2), "kanakku-backup.json", "application/json");
+  downloadBlob(JSON.stringify({entries,budgets:loadBudgets(),ledger,exportedAt:new Date().toISOString()},null,2), "kanakku-backup.json", "application/json"); markBackup();
+};
+document.getElementById("emailBackup").onclick=async ()=>{
+  const payload = JSON.stringify({ entries, budgets: loadBudgets(), ledger, exportedAt: new Date().toISOString() }, null, 2);
+  const filename = `kanakku-backup-${today()}.json`;
+  const file = new File([payload], filename, { type: "application/json" });
+  if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+    try{
+      await navigator.share({ files: [file], title: "Kanakku Backup", text: t("emailShareText") });
+      markBackup(); return;
+    }catch(e){ /* user cancelled or share failed, fall through to download */ }
+  }
+  downloadBlob(payload, filename, "application/json");
+  markBackup(); alert(t("emailFallback"));
 };
 function downloadBlob(content, filename, mime){
   const blob = new Blob([content],{type:mime});
@@ -503,14 +566,19 @@ document.getElementById("importFile").onchange=(e)=>{
   reader.onload = ()=>{
     try{
       const data = JSON.parse(reader.result);
-      if(Array.isArray(data)){ entries = data; persist(); renderAll(); alert(t("importOk")); }
+      const list = Array.isArray(data) ? data : (data && Array.isArray(data.entries) ? data.entries : null);
+      if(list){
+        entries = cleanEntries(list); persist(); if(Array.isArray(data.ledger)){ ledger=data.ledger.map(cleanLed).filter(Boolean); saveLedger(); }
+        if(data.budgets && typeof data.budgets === "object" && !Array.isArray(data.budgets)) saveBudgets(data.budgets);
+        renderAll(); alert(t("importOk"));
+      } else { alert(t("importBad")); }
     }catch(err){ alert(t("importBad")); }
   };
   reader.readAsText(file);
 };
 document.getElementById("clearAll").onclick=()=>{
   if(confirm(t("eraseConfirm"))){
-    entries = []; persist(); saveBudgets({}); renderAll();
+    entries = []; ledger = []; persist(); saveLedger(); saveBudgets({}); renderAll();
   }
 };
 
@@ -560,7 +628,7 @@ document.getElementById("remTime").onchange=()=>{
   updateRemStatus();
 };
 function hasLoggedToday(){
-  const today = new Date().toISOString().slice(0,10);
+  const today = today();
   return entries.some(e=>e.date===today);
 }
 function checkReminder(){
@@ -568,15 +636,12 @@ function checkReminder(){
   if(!r.on || !("Notification" in window) || Notification.permission!=="granted") return;
   const now = new Date();
   const [hh,mm] = r.time.split(":").map(Number);
-  const todayKey = now.toISOString().slice(0,10);
+  const todayKey = today();
   const lastFired = localStorage.getItem("kanakku_rem_last") || "";
   const reachedTime = now.getHours()>hh || (now.getHours()===hh && now.getMinutes()>=mm);
   if(reachedTime && lastFired!==todayKey && !hasLoggedToday()){
-    if(navigator.serviceWorker && navigator.serviceWorker.ready){
-      navigator.serviceWorker.ready.then(reg=> reg.showNotification(t("notifTitle"), {body:t("notifBody")}));
-    } else {
-      new Notification(t("notifTitle"), {body:t("notifBody")});
-    }
+    const opts={body:t("notifBody"),icon:"icon-192.png"};
+    (navigator.serviceWorker?navigator.serviceWorker.getRegistration():Promise.resolve(null)).then(reg=>{ if(reg) reg.showNotification(t("notifTitle"),opts); else new Notification(t("notifTitle"),opts); });
     localStorage.setItem("kanakku_rem_last", todayKey);
   }
 }
@@ -585,38 +650,12 @@ setInterval(checkReminder, 60000);
 // init
 load();
 applyLang();
-document.getElementById("date").value = new Date().toISOString().slice(0,10);
+document.getElementById("date").value = today();
 document.getElementById("currencySym").value = cur;
 initReminderUI();
 checkReminder();
 
-// --- PWA: manifest + service worker ---
-try{
-  const iconSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192"><rect width="192" height="192" rx="42" fill="%231b7a5e"/><circle cx="96" cy="96" r="72" fill="none" stroke="%23c98a1f" stroke-width="6"/><text x="96" y="130" font-size="100" text-anchor="middle" fill="white" font-family="Noto Sans Tamil, serif">%E0%AE%95</text></svg>';
-  const manifest = {
-    name:"Kanakku — Income & Expense Manager", short_name:"Kanakku",
-    start_url:".", display:"standalone",
-    background_color:"#f6f5f1", theme_color:"#1b7a5e",
-    icons:[{src:"data:image/svg+xml,"+iconSvg, sizes:"192x192", type:"image/svg+xml"}]
-  };
-  const link = document.createElement("link");
-  link.rel="manifest";
-  link.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)],{type:"application/json"}));
-  document.head.appendChild(link);
-  const favicon = document.createElement("link");
-  favicon.rel = "icon";
-  favicon.href = "data:image/svg+xml,"+iconSvg;
-  document.head.appendChild(favicon);
-  if("serviceWorker" in navigator){
-    const swCode = `
-      self.addEventListener('install', e => self.skipWaiting());
-      self.addEventListener('activate', e => self.clients.claim());
-      self.addEventListener('fetch', e => { e.respondWith(fetch(e.request).catch(()=>caches.match(e.request))); });
-    `;
-    const swUrl = URL.createObjectURL(new Blob([swCode],{type:"application/javascript"}));
-    navigator.serviceWorker.register(swUrl).catch(()=>{});
-  }
-}catch(e){}
+if("serviceWorker" in navigator){ window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{})); }
 </script>
 </body>
 </html>
