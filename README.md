@@ -2,7 +2,7 @@
 
 **A free income & expense book for everyone** — self-employed people, small shopkeepers and homemakers.
 
-Made by an ordinary middle-class man who wanted a simple, honest way to keep accounts. No ads. No sign-up. No servers. **Your data never leaves your phone** unless you back it up yourself. The optional AI advisor sends only a short summary of totals (no names or notes) using your own free Google Gemini key (or a Puter account).
+Made by an ordinary middle-class man who wanted a simple, honest way to keep accounts. No ads. No sign-up. No servers. **Your data never leaves your phone** unless you back it up yourself. The optional AI advisor sends only a short summary of totals (no names or notes) using your own free Google Gemini key.
 
 🔗 **Live app:** https://nikkumeow570-ctrl.github.io/kanakku/
 
@@ -16,8 +16,10 @@ Made by an ordinary middle-class man who wanted a simple, honest way to keep acc
 - Monthly dashboard with expense donut chart
 - **Udhaar / கடன் ledger** — who owes you, whom you owe
 - Monthly budgets per category with overspend warning
+- Your own custom income & expense categories
+- Mobile-first layout with bottom navigation
 - Daily reminder to log expenses
-- Optional **AI advisor** (your own free Google Gemini key, or Puter sign-in; sends only category totals)
+- Optional **AI advisor** (your own free Google Gemini key; sends only category totals)
 - Backup to Gmail (share sheet), CSV / JSON export, JSON import
 - Installable PWA, works offline, light/dark theme
 
