@@ -219,7 +219,7 @@ input,select{
     </div>
     <button class="submit" id="emailBackup" data-i="btnEmailBackup" style="margin-top:8px">Backup to Gmail</button>
     <label data-i="lblImport">Import JSON backup</label>
-    <input type="file" id="importFile" accept="application/json">
+    <input type="file" id="importFile" accept=".json,.txt,application/json,text/plain">
     <div class="section-title" data-i="sectionDanger">Danger zone</div>
     <button class="ghost" id="clearAll" data-i="btnErase" style="color:var(--expense); border-color:var(--expense)">Erase all data</button>
   </div>
@@ -542,15 +542,15 @@ document.getElementById("exportJson").onclick=()=>{
 };
 document.getElementById("emailBackup").onclick=async ()=>{
   const payload = JSON.stringify({ entries, budgets: loadBudgets(), ledger, exportedAt: new Date().toISOString() }, null, 2);
-  const filename = `kanakku-backup-${today()}.json`;
-  const file = new File([payload], filename, { type: "application/json" });
-  if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-    try{
-      await navigator.share({ files: [file], title: "Kanakku Backup", text: t("emailShareText") });
-      markBackup(); return;
-    }catch(e){ /* user cancelled or share failed, fall through to download */ }
+  const base = `kanakku-backup-${today()}`;
+  const file = new File([payload], base+".txt", { type: "text/plain" });
+  const attempts = [{ files:[file], title:"Kanakku Backup", text:t("emailShareText") }, { title:"Kanakku Backup "+today(), text:payload }];
+  for(const data of attempts){
+    if(!navigator.share || (navigator.canShare && !navigator.canShare(data))) continue;
+    try{ await navigator.share(data); markBackup(); return; }
+    catch(e){ if(e && e.name==="AbortError") return; }
   }
-  downloadBlob(payload, filename, "application/json");
+  downloadBlob(payload, base+".json", "application/json");
   markBackup(); alert(t("emailFallback"));
 };
 function downloadBlob(content, filename, mime){
