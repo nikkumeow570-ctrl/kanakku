@@ -20,7 +20,16 @@ Made by an ordinary middle-class man who wanted a simple, honest way to keep acc
 - Mobile-first layout with bottom navigation
 - Daily reminder to log expenses
 - Optional **AI advisor** (sign in with a free Puter account; sends only category totals)
-- Backup to Gmail (share sheet), CSV / JSON export, JSON import
+- Backup to Gmail (share sheet), CSV / JSON export, JSON import (asks before replacing data)
+- **Recurring entries** (rent, salary, EMIs) added automatically each month
+- **Monthly report** with 6-month trend — save as PDF or share the summary
+- **Voice entry** (English / தமிழ்) that fills the form for you to confirm
+- **Google Drive backup / restore** (your own private app folder)
+- Daily reminder + one-tap **Calendar reminder** that works even when the app is closed
+- **Insights** — month-end outlook and safe-to-spend per day, changes vs your usual, unusual expenses, double-entry finder, budget and recurring suggestions (all calculated on your phone)
+- Quick-add chips learned from your own most frequent entries; category hint while typing a note
+- Optional PIN lock (a screen lock only; backups are not encrypted)
+- Paise-accurate amounts, all-time balance, savings rate, part-payments on udhaar
 - Installable PWA, works offline, light/dark theme
 
 ## Install on your phone
@@ -29,11 +38,23 @@ Open the live link in Chrome and tap **Install app** (or Menu → *Add to Home s
 ## Your data
 Everything is stored in your browser's local storage on your device. Clearing browser data erases it, so use **Data → Backup to Gmail** regularly (the app reminds you every 30 days).
 
+## Google Drive backup setup (one time)
+1. In Google Cloud Console create a project and enable the **Google Drive API**.
+2. Configure the OAuth consent screen (External, Testing) and add your own Google account as a test user.
+3. Create an **OAuth client ID** of type **Web application** and add `https://<your-username>.github.io` as an authorized JavaScript origin.
+4. Paste the Client ID into **More → Backup & Settings → Google Drive backup**.
+
+## Privacy
+Entries, budgets and udhaar stay on your device. Nothing is sent anywhere unless you back up (Gmail / Drive), use voice entry (your browser's speech service) or use the AI tab, which sends only category totals to Puter after you sign in. No ads, no tracking.
+
 ## Deploy your own copy
 It is plain static files (`index.html`, `sw.js`, `manifest.json`, icons). Push to a GitHub repo and enable **Settings → Pages → Deploy from branch → main / root**.
 
 ## Roadmap
-Recurring entries · custom categories · PIN lock · PDF monthly report · Tamil voice input
+Push notifications that need a server, more languages, a shared book for couples
 
 ## Feedback
 Open an issue on this repository — suggestions and Tamil wording fixes are very welcome.
+
+## v4l — redesign
+Peacock/kumkum palette (WCAG AA checked, light+dark), balance hero with spent-of-income bar, ranked category bars instead of a donut, floating glass bottom nav (glass only on navigation, with reduced-transparency fallback), SVG icons, large amount entry with sticky Save, 44–48px touch targets, focus rings, reduced-motion support.

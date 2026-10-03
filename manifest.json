@@ -1,23 +1,43 @@
 {
+ "id": "./",
  "name": "Kanakku — Income & Expense Manager",
  "short_name": "Kanakku",
+ "description": "Free income & expense book in English and Tamil",
+ "lang": "en",
+ "categories": [
+  "finance",
+  "productivity"
+ ],
  "start_url": "./",
  "scope": "./",
  "display": "standalone",
- "background_color": "#f6f5f1",
- "theme_color": "#1b7a5e",
+ "orientation": "portrait",
+ "background_color": "#eff4f5",
+ "theme_color": "#0a6169",
  "icons": [
   {
    "src": "icon-192.png",
    "sizes": "192x192",
    "type": "image/png",
-   "purpose": "any maskable"
+   "purpose": "any"
   },
   {
    "src": "icon-512.png",
    "sizes": "512x512",
    "type": "image/png",
-   "purpose": "any maskable"
+   "purpose": "any"
+  },
+  {
+   "src": "icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "maskable"
+  },
+  {
+   "src": "icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
   }
  ]
 }
