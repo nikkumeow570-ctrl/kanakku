@@ -58,3 +58,6 @@ Open an issue on this repository — suggestions and Tamil wording fixes are ver
 
 ## v4l — redesign
 Peacock/kumkum palette (WCAG AA checked, light+dark), balance hero with spent-of-income bar, ranked category bars instead of a donut, floating glass bottom nav (glass only on navigation, with reduced-transparency fallback), SVG icons, large amount entry with sticky Save, 44–48px touch targets, focus rings, reduced-motion support.
+
+## v4m — Udhaar fixes
+Partial-payment dialog (no more prompt(); "1,000" parses correctly), un-settling a fully paid item restores the balance, delete has Undo, empty-save shows a hint, unique ids on import, accessible action buttons, long names no longer crush the row, ↓/↑ glyphs only on Income/Expense and Udhaar toggles.
