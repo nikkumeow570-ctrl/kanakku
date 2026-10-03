@@ -61,3 +61,6 @@ Peacock/kumkum palette (WCAG AA checked, light+dark), balance hero with spent-of
 
 ## v4m — Udhaar fixes
 Partial-payment dialog (no more prompt(); "1,000" parses correctly), un-settling a fully paid item restores the balance, delete has Undo, empty-save shows a hint, unique ids on import, accessible action buttons, long names no longer crush the row, ↓/↑ glyphs only on Income/Expense and Udhaar toggles.
+
+## v4n
+Repaying/settling an udhaar now records real income (money you get back) or expense (money you pay back) under "Udhaar Received"/"Udhaar Paid", with Undo; un-ticking reverses it. Fixed last list rows hiding behind the floating nav bar.
