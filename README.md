@@ -64,3 +64,6 @@ Partial-payment dialog (no more prompt(); "1,000" parses correctly), un-settling
 
 ## v4n
 Repaying/settling an udhaar now records real income (money you get back) or expense (money you pay back) under "Udhaar Received"/"Udhaar Paid", with Undo; un-ticking reverses it. Fixed last list rows hiding behind the floating nav bar.
+
+## v5
+Backup code (share/restore whole book as one text, works over WhatsApp) + persistent storage request + weekly backup nudge; udhaar grouped per person with totals, history, phone, WhatsApp remind, person-level payments; Today card; Quick-add buttons; Share summary (image/text); first-run language + shop/home/self setup; Recently deleted (30 days); history search by amount + date range.
