@@ -67,3 +67,6 @@ Repaying/settling an udhaar now records real income (money you get back) or expe
 
 ## v5
 Backup code (share/restore whole book as one text, works over WhatsApp) + persistent storage request + weekly backup nudge; udhaar grouped per person with totals, history, phone, WhatsApp remind, person-level payments; Today card; Quick-add buttons; Share summary (image/text); first-run language + shop/home/self setup; Recently deleted (30 days); history search by amount + date range.
+
+## v5c
+Install-help card on Home (Android Chrome / iPhone Safari / in-app browser variants, Tamil + English); hides once installed or dismissed; re-show from Backup & Settings.
