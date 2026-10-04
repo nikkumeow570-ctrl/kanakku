@@ -1,0 +1,7 @@
+{
+  "appId": "app.kanakku",
+  "appName": "Kanakku",
+  "webDir": "www",
+  "server": { "androidScheme": "https" },
+  "android": { "backgroundColor": "#0A6169" }
+}

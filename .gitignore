@@ -1,0 +1,7 @@
+node_modules/
+android-build/node_modules/
+android-build/android/
+android-build/www/
+android-build/Kanakku.apk
+*.jks
+*.b64

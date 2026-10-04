@@ -1,0 +1,75 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: android-build
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Check signing secrets
+        env:
+          KS_B64: ${{ secrets.KS_B64 }}
+          KS_PASS: ${{ secrets.KS_PASS }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.KEY_PASS }}
+        run: |
+          for v in KS_B64 KS_PASS KEY_ALIAS KEY_PASS; do
+            if [ -z "${!v}" ]; then echo "Missing secret $v - see android-build/README-ANDROID.md"; exit 1; fi
+          done
+
+      - run: npm install --no-audit --no-fund
+      - run: node scripts/prepare-www.js
+      - run: npx cap add android
+      - run: node scripts/apply-branding.js
+      - run: npx cap sync android
+
+      - name: Build release APK (unsigned)
+        working-directory: android-build/android
+        run: ./gradlew assembleRelease --no-daemon
+
+      - name: Align and sign
+        env:
+          KS_B64: ${{ secrets.KS_B64 }}
+          KS_PASS: ${{ secrets.KS_PASS }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.KEY_PASS }}
+        run: |
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+          UNSIGNED=$(ls android/app/build/outputs/apk/release/*.apk | head -1)
+          echo "$KS_B64" | base64 -d > ks.jks
+          "$BT/zipalign" -p -f 4 "$UNSIGNED" aligned.apk
+          "$BT/apksigner" sign --ks ks.jks --ks-key-alias "$KEY_ALIAS" \
+            --ks-pass env:KS_PASS --key-pass env:KEY_PASS --out Kanakku.apk aligned.apk
+          "$BT/apksigner" verify --print-certs Kanakku.apk
+          rm -f ks.jks aligned.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Kanakku-apk
+          path: android-build/Kanakku.apk
+
+      - name: Publish to GitHub Release (public download link)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view android-latest >/dev/null 2>&1 || \
+            gh release create android-latest --title "Kanakku Android (latest)" --notes "Signed APK. Download Kanakku.apk and install."
+          gh release upload android-latest Kanakku.apk --clobber

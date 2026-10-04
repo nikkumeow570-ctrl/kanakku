@@ -70,3 +70,6 @@ Backup code (share/restore whole book as one text, works over WhatsApp) + persis
 
 ## v5c
 Install-help card on Home (Android Chrome / iPhone Safari / in-app browser variants, Tamil + English); hides once installed or dismissed; re-show from Backup & Settings.
+
+## v5d
+Android build project (android-build/ + .github/workflows/android.yml). Web app treats the native app as installed (hides install help).
