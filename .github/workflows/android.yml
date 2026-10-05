@@ -39,6 +39,11 @@ jobs:
       - run: node scripts/prepare-www.js
       - run: npx cap add android
       - run: node scripts/apply-branding.js
+      - name: Set version (higher on every build so updates install over the old app)
+        run: |
+          F=android/app/build.gradle
+          sed -i -E "s/versionCode [0-9]+/versionCode ${{ github.run_number }}/; s/versionName \"[^\"]*\"/versionName \"1.0.${{ github.run_number }}\"/" "$F"
+          grep -n "versionCode\|versionName" "$F"
       - run: npx cap sync android
 
       - name: Build release APK (unsigned)

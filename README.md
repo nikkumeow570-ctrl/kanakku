@@ -76,3 +76,6 @@ Android build project (android-build/ + .github/workflows/android.yml). Web app 
 
 ## v5e
 APK: install-help hidden in native app; AI Advisor opens the web version (Puter needs a browser) with totals passed in the URL fragment.
+
+## v5f
+Build sets versionCode = run number so each APK installs as an update.
