@@ -73,3 +73,6 @@ Install-help card on Home (Android Chrome / iPhone Safari / in-app browser varia
 
 ## v5d
 Android build project (android-build/ + .github/workflows/android.yml). Web app treats the native app as installed (hides install help).
+
+## v5e
+APK: install-help hidden in native app; AI Advisor opens the web version (Puter needs a browser) with totals passed in the URL fragment.
