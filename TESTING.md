@@ -49,3 +49,9 @@ Data lives on each phone only; the PIN is a screen lock, not encryption; backgro
 
 ## v5m
 - Alerts from any app whose package name looks like a payment/bank app are now read; money-in alerts from unlisted apps are logged locally under "Not detected? Recent alerts" as [unlisted] for diagnosis.
+
+## v6 — Listener health & reliability
+- Native: listener connected/disconnected flag + auto-rebind, heartbeat (last alert / app / last payment), real self-test (Kanakku posts a silent notification and verifies its own listener heard it), keep-alive foreground service (specialUse), battery-optimisation + OEM auto-start shortcuts, POST_NOTIFICATIONS request.
+- apply-native.js adds permissions + services idempotently (verified on a mock manifest; XML valid). Native classes compile-checked against API stubs — **not run on a real device**.
+- Removed two unreferenced files (RelayCodec.java, SseClient.java) found in android-build/native/java that were not part of any build step.
+- Web: health card, test/keep-alive/battery buttons, EN/TA; mocked-plugin tests incl. failure paths.

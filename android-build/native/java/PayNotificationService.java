@@ -20,9 +20,24 @@ public class PayNotificationService extends NotificationListenerService {
     }
     @Override public void onDestroy() { try { if (tts != null) { tts.stop(); tts.shutdown(); } } catch (Exception ignored) {} super.onDestroy(); }
 
+    @Override public void onListenerConnected() {
+        PayStore.sp(this).edit().putBoolean("connected", true).putLong("conn_ts", System.currentTimeMillis()).apply();
+    }
+    @Override public void onListenerDisconnected() {
+        PayStore.sp(this).edit().putBoolean("connected", false).apply();
+        rebind(this);
+    }
+
     @Override public void onNotificationPosted(StatusBarNotification sbn) {
         try {
             if (sbn == null) return;
+            PayStore.sp(this).edit().putLong("seen_ts", System.currentTimeMillis()).apply();
+            if (getPackageName().equals(sbn.getPackageName())) {   // our own listener self-test notification
+                Bundle me = sbn.getNotification() == null ? null : sbn.getNotification().extras;
+                String ttl = me == null ? "" : str(me.getCharSequence(Notification.EXTRA_TITLE));
+                if (ttl.startsWith("Kanakku listener test")) { PayStore.sp(this).edit().putLong("selftest_ts", System.currentTimeMillis()).apply(); try { cancelNotification(sbn.getKey()); } catch (Exception ignored) {} }
+                return;
+            }
             if (!PaymentParser.isAllowed(sbn.getPackageName())) {
                 // Unlisted app: keep a local note (package + text) only if it looks like a money-in alert, so support can add it.
                 Bundle e0 = sbn.getNotification() == null ? null : sbn.getNotification().extras;
@@ -34,6 +49,7 @@ public class PayNotificationService extends NotificationListenerService {
             Bundle ex = n.extras; if (ex == null) return;
             String title = str(ex.getCharSequence(Notification.EXTRA_TITLE)), text = str(ex.getCharSequence(Notification.EXTRA_TEXT)), big = str(ex.getCharSequence(Notification.EXTRA_BIG_TEXT));
             String pkg = sbn.getPackageName(), key = sbn.getKey();
+            PayStore.sp(this).edit().putString("seen_pkg", pkg).apply();
             PaymentParser.Payment p = PaymentParser.parse(pkg, title, text, big);
             if (p == null) {
                 String all = (title + " " + text).trim();
@@ -43,6 +59,7 @@ public class PayNotificationService extends NotificationListenerService {
             long now = System.currentTimeMillis();
             if (PaymentParser.isDuplicate(PayStore.recent(this), p.amt, pkg, key, now)) return;
             PayStore.remember(this, p.amt, pkg, key, now);
+            PayStore.sp(this).edit().putLong("pay_ts", now).apply();
             JSONObject o = PayStore.enqueue(this, p, pkg);
             if (PayStore.sp(this).getBoolean("speak", true)) speak(p);
             if (o != null) PayListenerPlugin.emit(o);

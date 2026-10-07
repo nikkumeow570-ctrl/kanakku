@@ -1,6 +1,14 @@
 package app.kanakku;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.PowerManager;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -39,8 +47,60 @@ public class PayListenerPlugin extends Plugin {
     }
 
     @PluginMethod public void status(PluginCall call) {
-        JSObject r = new JSObject(); r.put("enabled", enabled()); r.put("sdk", Build.VERSION.SDK_INT); call.resolve(r);
-        if (enabled()) PayNotificationService.rebind(getContext());
+        Context c = getContext(); android.content.SharedPreferences sp = PayStore.sp(c); boolean en = enabled();
+        JSObject r = new JSObject(); r.put("enabled", en); r.put("sdk", Build.VERSION.SDK_INT);
+        r.put("connected", en && sp.getBoolean("connected", false));
+        r.put("seenTs", sp.getLong("seen_ts", 0L)); r.put("seenPkg", sp.getString("seen_pkg", ""));
+        r.put("payTs", sp.getLong("pay_ts", 0L)); r.put("selfTs", sp.getLong("selftest_ts", 0L));
+        boolean ign = false; try { PowerManager pm = (PowerManager) c.getSystemService(Context.POWER_SERVICE); ign = pm != null && pm.isIgnoringBatteryOptimizations(c.getPackageName()); } catch (Exception ignored) {}
+        r.put("battery", ign); r.put("keepAlive", sp.getBoolean("keepalive", false));
+        r.put("notifOk", androidx.core.app.NotificationManagerCompat.from(c).areNotificationsEnabled());
+        call.resolve(r);
+        if (en) PayNotificationService.rebind(c);
+    }
+    /** Posts a silent notification from Kanakku itself; if the listener is really connected, it records selftest_ts. */
+    @PluginMethod public void selfTest(PluginCall call) {
+        Context c = getContext(); JSObject r = new JSObject();
+        try {
+            if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(c, "android.permission.POST_NOTIFICATIONS") != PackageManager.PERMISSION_GRANTED) {
+                try { ActivityCompat.requestPermissions(getActivity(), new String[]{"android.permission.POST_NOTIFICATIONS"}, 1001); } catch (Exception ignored) {}
+                r.put("posted", false); r.put("reason", "notif_off"); call.resolve(r); return;
+            }
+            if (!androidx.core.app.NotificationManagerCompat.from(c).areNotificationsEnabled()) { r.put("posted", false); r.put("reason", "notif_off"); call.resolve(r); return; }
+            NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
+            if (Build.VERSION.SDK_INT >= 26) nm.createNotificationChannel(new NotificationChannel("kanakku_test", "Listener test", NotificationManager.IMPORTANCE_MIN));
+            nm.notify(9001, new NotificationCompat.Builder(c, "kanakku_test").setSmallIcon(c.getApplicationInfo().icon)
+                .setContentTitle("Kanakku listener test").setContentText("Checking that payment alerts reach Kanakku").setPriority(NotificationCompat.PRIORITY_MIN).setAutoCancel(true).build());
+            r.put("posted", true); call.resolve(r);
+        } catch (Exception e) { r.put("posted", false); r.put("reason", "error"); call.resolve(r); }
+    }
+    @PluginMethod public void keepAlive(PluginCall call) {
+        boolean on = call.getBoolean("on", false); Context c = getContext();
+        try {
+            Intent i = new Intent(c, KeepAliveService.class);
+            if (on) { if (Build.VERSION.SDK_INT >= 26) c.startForegroundService(i); else c.startService(i); } else c.stopService(i);
+            PayStore.sp(c).edit().putBoolean("keepalive", on).apply();
+        } catch (Exception ignored) {}
+        call.resolve();
+    }
+    @PluginMethod public void openBattery(PluginCall call) {
+        Context c = getContext();
+        try { Intent i = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:" + c.getPackageName())); i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); c.startActivity(i); }
+        catch (Exception e) { try { Intent i = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS); i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); c.startActivity(i); } catch (Exception ignored) {} }
+        call.resolve();
+    }
+    @PluginMethod public void openAutoStart(PluginCall call) {
+        Context c = getContext();
+        String[][] t = {
+            {"com.coloros.safecenter", "com.coloros.safecenter.startupapp.StartupAppListActivity"},
+            {"com.oplus.safecenter", "com.oplus.safecenter.startupapp.StartupAppListActivity"},
+            {"com.miui.securitycenter", "com.miui.permcenter.autostart.AutoStartManagementActivity"},
+            {"com.vivo.permissionmanager", "com.vivo.permissionmanager.activity.BgStartUpManagerActivity"},
+            {"com.oneplus.security", "com.oneplus.security.chainlaunch.view.ChainLaunchAppListActivity"}};
+        for (String[] x : t) {
+            try { Intent i = new Intent(); i.setComponent(new ComponentName(x[0], x[1])); i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); c.startActivity(i); call.resolve(); return; } catch (Exception ignored) {}
+        }
+        openAppInfo(call);
     }
     @PluginMethod public void openSettings(PluginCall call) {
         Intent i = new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS); i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

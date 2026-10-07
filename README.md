@@ -87,3 +87,5 @@ Build sets versionCode = run number so each APK installs as an update.
 - **My QR (any amount)**: permanent shop QR, shareable/saveable image; auto-confirm records whatever amount arrives.
 
 - **Staff phone soundbox**: owner phone sends encrypted payment alerts to a staff phone that speaks every amount (needs internet; keep Kanakku open on the staff phone).
+
+- **v6**: listener health card, real listener self-test, keep-alive notification, battery/auto-start shortcuts.
