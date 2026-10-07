@@ -52,7 +52,7 @@ public class PayNotificationService extends NotificationListenerService {
             String msg; boolean ok;
             if (ta) { int r = tts.setLanguage(new Locale("ta", "IN")); ok = r != TextToSpeech.LANG_MISSING_DATA && r != TextToSpeech.LANG_NOT_SUPPORTED; }
             else ok = false;
-            if (ta && ok) msg = a + " ரூபாய் வந்தது" + (p.who.isEmpty() ? "" : ", " + p.who);
+            if (ta && ok) msg = (p.who.isEmpty() ? "" : p.who + " கிட்ட இருந்து ") + a + " ரூபா வந்துச்சு";
             else { tts.setLanguage(new Locale("en", "IN")); msg = "Received " + a + " rupees" + (p.who.isEmpty() ? "" : " from " + p.who); }
             tts.speak(msg, TextToSpeech.QUEUE_ADD, null, "kanakku-" + System.nanoTime());
         } catch (Exception ignored) {}
