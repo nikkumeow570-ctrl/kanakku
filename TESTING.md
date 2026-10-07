@@ -55,3 +55,6 @@ Data lives on each phone only; the PIN is a screen lock, not encryption; backgro
 - apply-native.js adds permissions + services idempotently (verified on a mock manifest; XML valid). Native classes compile-checked against API stubs — **not run on a real device**.
 - Removed two unreferenced files (RelayCodec.java, SseClient.java) found in android-build/native/java that were not part of any build step.
 - Web: health card, test/keep-alive/battery buttons, EN/TA; mocked-plugin tests incl. failure paths.
+
+## v6.1
+- UPI is now its own bottom-nav tab with three sections (QR / Auto-confirm / Staff). Removed from the More menu. Verified at 360px in EN and TA; all earlier tests re-run after the change.
