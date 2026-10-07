@@ -19,3 +19,9 @@ Download: repo -> Releases -> "Kanakku Android (latest)" -> Kanakku.apk (public 
 
 Note: the native app has its own storage, separate from the website/PWA. Move data with
 Backup & Settings -> Share backup code (old app) and Restore from code (new app).
+
+## Auto-confirm payments (v5h)
+`scripts/apply-native.js` (run by the workflow after branding) copies `native/java/*` into the generated project, adds the
+`PayNotificationService` (Notification Access) to the manifest and registers the `PayListener` plugin in `MainActivity`.
+Sideload only: Google Play restricts notification-listener apps. On Android 13+ the switch may be greyed out until
+App info → ⋮ → "Allow restricted settings".

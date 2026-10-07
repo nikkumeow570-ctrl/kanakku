@@ -27,3 +27,15 @@ Automated checks (33) cover the logic only. These need a human and a phone.
 
 ## Known limits (by design)
 Data lives on each phone only; the PIN is a screen lock, not encryption; background reminders are best-effort; no sync between phones.
+
+## v5g — UPI collect (verified in Chromium 390×844)
+- Offline QR encoder (byte mode, ECC M, v1–10) decoded back with OpenCV for 16 payload sizes incl. Tamil UTF-8.
+- Invalid UPI ID rejected; save/edit; owing-customer chips prefill name+amount.
+- "Received" → FIFO applies to that customer's udhaar (real income entries), overpay → extra income, walk-in → Business Income; Undo restores both.
+- Spoken confirmation EN (en-IN) / TA (ta-IN); WhatsApp Remind includes UPI ID + pay link; "UPI QR" button on each customer.
+- Kanakku never touches money; "Received" is a manual tap by design.
+
+## v5h — Auto-confirm payments (Android app)
+- `android-build/native/java/PaymentParser.java` unit-tested with JDK: GPay / PhonePe / Paytm / BHIM notifications, bank credit SMS (HDFC/SBI styles, balance-first), Tamil names; rejects debits, requests, failures, OTPs, cashback, "will be credited". Cross-source de-dup (app alert + bank SMS within 2 min).
+- Native classes compile-checked against API stubs; **real-device test still needed** (enable Notification access → ₹1 test → real ₹1 payment).
+- Web side tested with a mocked plugin: open-QR amount match, udhaar match by payer name, walk-in income, duplicate ids ignored, "ask first" mode with Add/Ignore, startup queue drain + ack, EN/TA, browser fallback.

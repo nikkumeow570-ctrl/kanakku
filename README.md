@@ -79,3 +79,7 @@ APK: install-help hidden in native app; AI Advisor opens the web version (Puter 
 
 ## v5f
 Build sets versionCode = run number so each APK installs as an update.
+
+- **Collect via UPI** (More menu): QR for GPay/PhonePe/Paytm, direct to your bank; Received tap records income; pay details added to udhaar reminders.
+
+- **Auto-confirm payments** (Android app): reads "money received" alerts from GPay/PhonePe/Paytm/bank SMS on-device, records them and speaks the amount.

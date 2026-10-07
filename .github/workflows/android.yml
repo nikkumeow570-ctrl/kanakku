@@ -39,6 +39,7 @@ jobs:
       - run: node scripts/prepare-www.js
       - run: npx cap add android
       - run: node scripts/apply-branding.js
+      - run: node scripts/apply-native.js
       - name: Set version (higher on every build so updates install over the old app)
         run: |
           F=android/app/build.gradle

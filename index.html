@@ -127,6 +127,9 @@ input:focus,select:focus{border-color:var(--accent); outline:none}
 .phead .amt{font-weight:800;font-size:1.05rem;white-space:nowrap}
 .phead .amt.in{color:var(--income)} .phead .amt.ex{color:var(--expense)}
 .pacts{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+.qrbox{background:#fff;color:#0b1e21;border-radius:20px;padding:16px;text-align:center;margin-bottom:12px}
+.qrbox svg{width:min(76vw,300px);height:auto;display:block;margin:0 auto}
+.qrbox .qa{font-size:2rem;font-weight:800;margin-top:6px}.qrbox .qs{font-size:.9rem;color:#4a5f63;word-break:break-all}
 .pbtn{min-height:44px;padding:0 18px;border-radius:22px;border:none;background:var(--chip);color:var(--text);font-weight:600;font-size:.9rem}
 .pbtn.pri{background:var(--accent);color:var(--accent-ink)}
 .pbody{padding:0 0 6px 4px;display:none} .person.open .pbody{display:block}
@@ -196,7 +199,7 @@ input:focus,select:focus{border-color:var(--accent); outline:none}
 <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8zM14 3v5h5M9 13h6M9 17h6"/></symbol>
 <symbol id="i-tag" viewBox="0 0 24 24"><path d="M20 12l-8 8-9-9V3h8zM7.5 7.5h.01"/></symbol>
 <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></symbol>
-<symbol id="i-db" viewBox="0 0 24 24"><path d="M12 3c4.4 0 8 1.3 8 3s-3.6 3-8 3-8-1.3-8-3 3.6-3 8-3zM4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></symbol>
+<symbol id="i-qr" viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2.5v2.5H14zM19 14h1v1h-1zM14 19h1v1h-1zM17.5 17.5H20V20h-2.5z"/></symbol><symbol id="i-db" viewBox="0 0 24 24"><path d="M12 3c4.4 0 8 1.3 8 3s-3.6 3-8 3-8-1.3-8-3 3.6-3 8-3zM4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></symbol>
 <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
 <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></symbol>
 <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
@@ -330,6 +333,7 @@ input:focus,select:focus{border-color:var(--accent); outline:none}
 
 <div class="panel" id="p-more">
   <div class="menu">
+    <div class="tab mitem" data-t="collect"><svg class="ic" aria-hidden="true"><use href="#i-qr"/></svg><span data-i="tabCollect">Collect via UPI</span><i>›</i></div>
     <div class="tab mitem" data-t="insights"><svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg><span data-i="tabInsights">Insights</span><i>›</i></div>
     <div class="tab mitem" data-t="budgets"><svg class="ic" aria-hidden="true"><use href="#i-target"/></svg><span data-i="tabBudgets">Budgets</span><i>›</i></div>
     <div class="tab mitem" data-t="rec"><svg class="ic" aria-hidden="true"><use href="#i-repeat"/></svg><span data-i="tabRec">Recurring</span><i>›</i></div>
@@ -339,6 +343,21 @@ input:focus,select:focus{border-color:var(--accent); outline:none}
     <div class="tab mitem" data-t="trash"><svg class="ic" aria-hidden="true"><use href="#i-trash"/></svg><span data-i="tabTrash">Recently deleted</span><i>›</i></div>
     <div class="tab mitem" data-t="data"><svg class="ic" aria-hidden="true"><use href="#i-db"/></svg><span data-i="tabData">Backup &amp; Settings</span><i>›</i></div>
   </div>
+</div>
+
+<div class="panel" id="p-collect">
+  <div class="card" id="colSetup"></div>
+  <div class="card" id="colForm">
+    <div style="font-size:.9rem;line-height:1.5;color:var(--sub)" data-i="colIntro"></div>
+    <div id="colChips" class="pacts" style="margin:12px 0 0"></div>
+    <label data-i="colFor">From (customer, optional)</label><input type="text" id="colFor" list="colNames" autocomplete="off"><datalist id="colNames"></datalist>
+    <label data-i="lblAmount">Amount (₹)</label><input type="text" id="colAmt" inputmode="decimal" maxlength="12">
+    <label data-i="lblNote">Note (optional)</label><input type="text" id="colNote" maxlength="30">
+    <button type="button" class="submit" id="colMake" data-i="colMake">Show QR</button>
+  </div>
+  <div id="colOut"></div>
+  <div class="card" id="colAuto"></div>
+  <div style="font-size:.82rem;line-height:1.5;color:var(--sub);padding:4px 6px 12px" data-i="colManual"></div>
 </div>
 
 <div class="panel" id="p-trash">
@@ -477,9 +496,11 @@ input:focus,select:focus{border-color:var(--accent); outline:none}
 const STR = {
 en:{
   tagline:"Your daily income & expense book",
-  tabAi:"AI Advisor", aiIntro:"Get simple, friendly tips on this month's income and spending from an AI advisor.", aiPrivacy:"Needs a free Puter account (sign-in opens a popup). Only category totals are sent — no names, notes or dates.", aiSignIn:"Sign in with Puter", aiSignedAs:"Signed in as ", aiSignOut:"Sign out", aiAnalyse:"Analyse this month", aiAskPh:"Ask a question, e.g. how can I cut grocery spend?", aiAskBtn:"Ask", aiThinking:"Thinking…", aiError:"The AI couldn't answer. Check your internet and try again.", aiCancel:"Sign-in was cancelled.", aiOffline:"Internet needed.", aiDisclaimer:"AI can be wrong. This is not professional financial advice.", aboutTitle:"About Kanakku", installBtn:"Install app", aboutFoot:"Free forever · v5e",
+  tabAi:"AI Advisor", aiIntro:"Get simple, friendly tips on this month's income and spending from an AI advisor.", aiPrivacy:"Needs a free Puter account (sign-in opens a popup). Only category totals are sent — no names, notes or dates.", aiSignIn:"Sign in with Puter", aiSignedAs:"Signed in as ", aiSignOut:"Sign out", aiAnalyse:"Analyse this month", aiAskPh:"Ask a question, e.g. how can I cut grocery spend?", aiAskBtn:"Ask", aiThinking:"Thinking…", aiError:"The AI couldn't answer. Check your internet and try again.", aiCancel:"Sign-in was cancelled.", aiOffline:"Internet needed.", aiDisclaimer:"AI can be wrong. This is not professional financial advice.", aboutTitle:"About Kanakku", installBtn:"Install app", aboutFoot:"Free forever · v5h",
   aboutP1:"Kanakku (கணக்கு) means “accounts”. It is a free app for everyone — made by an ordinary middle-class man, for self-employed people, small shopkeepers and homemakers who just want a simple, honest way to track money in and money out.",
   aboutP2:"No ads. No sign-up. No servers. Your entries stay on your own phone; they only leave when you back them up yourself, or when you choose the optional AI advisor (it sends only a short summary of totals).",
+  tabCollect:"Collect via UPI", colIntro:"Show a QR for your customer to scan with GPay, PhonePe or Paytm. Money goes straight to your bank — Kanakku never touches it.", colSetupT:"Your UPI ID", colUpiId:"UPI ID (e.g. name@okhdfc)", colPayee:"Name shown to payer", colSave:"Save", colBad:"Enter a valid UPI ID like name@bank", colEdit:"Change", colFor:"From (customer, optional)", colMake:"Show QR", colShare:"Share QR", colRecv:"Received ✓", colHide:"Close", colScan:"Scan with any UPI app", colManual:"“Received” is a manual tap — Kanakku can't see your bank. Check the money in your bank or UPI app first. Tip: a business UPI ID is better than a personal one for shop payments.", colNeedAmt:"Enter an amount", colDone:"Payment recorded", colTooLong:"Couldn't make a QR. Try a shorter name or note.", colOwing:"Owes you", colShort:"UPI QR", payVia:"Pay via UPI: {id}", colShareText:"Pay {a} to {n}\nUPI ID: {id}", colNeedUpi:"Save your UPI ID first", colSpoken:"Received {a} rupees{f}", colSpokenFrom:" from {n}",
+  autoT:"Auto-confirm payments", autoIntro:"Kanakku reads the “money received” alert from GPay, PhonePe, Paytm or your bank SMS — only on this phone — then records it and speaks the amount, like a soundbox.", autoOn:"On — listening for payments", autoOff:"Off — tap Turn on", autoTurnOn:"Turn on", autoGrey:"Switch greyed out? Open App info → ⋮ (top right) → Allow restricted settings, then try again.", autoAppInfo:"App info", autoModeAuto:"Record automatically", autoModeAsk:"Ask me first", autoSpeakOn:"Speak amount: On", autoSpeakOff:"Speak amount: Off", autoTest:"Send ₹1 test", autoBrowser:"Auto-confirm works in the Kanakku Android app — a website can't read notifications.", autoPending:"Waiting for you", autoAdd:"Add", autoIgnore:"Ignore", autoMissed:"Not detected? Recent alerts", autoMissedHint:"Copy these and send them to the developer so detection can be improved.", autoNone:"Nothing yet.", autoDetected:"Payment detected: {a}",
   tabLedger:"Udhaar", ledGet:"You'll get", ledOwe:"You owe", ledDirGet:"They owe me", ledDirGive:"I owe them", ledPerson:"Name", ledEmpty:"No udhaar entries yet.", ledNeed:"Enter a name and an amount.", ledRecIn:"Added to your income.", ledRecOut:"Added to your expenses.", aiOpenWeb:"Open AI Advisor in browser", aiNativeNote:"Puter sign-in needs a browser. Only your totals (no names or notes) are passed on.", ihTitle:"Install Kanakku like an app", ihAndroid:"In Chrome: tap ⋮ (top right) → Install app (or Add to Home screen). It then opens full screen from your home screen, even without internet.", ihIos:"In Safari: tap Share ⬆ → Add to Home Screen.", ihWebview:"This page is open inside another app. Tap ⋮ → Open in Chrome, then install from there.", ihGot:"Got it", ihShow:"Show install help", ledAddBtn:"+ Add udhaar", todayT:"Today", quickT:"Quick add", shareSum:"Share summary", copied:"Copied.", remindBtn:"Remind", recvBtn:"Receive", payBtn:"Pay", ledPhone:"Phone for WhatsApp (optional)", ledCount:"Pending: {n}", remindMsg:"Hi {n}, a gentle reminder: {a} is pending with me. Please pay when you can. Thank you!", codeShare:"Share backup code", codeRestore:"Restore from code", codeHelp:"Sends your whole book as one text (WhatsApp works). To move to a new phone: share the code, then open Kanakku there and tap Restore from code.", codeAsk:"Paste the backup code", codeBad:"That code isn't valid.", onbTitle:"Welcome to Kanakku", onbLang:"Choose your language", onbWho:"What do you use it for?", onbShop:"My shop / business", onbHome:"My home", onbSelf:"My own work (tailor, freelance…)", onbSkip:"Skip for now", onbAgain:"Change language & setup", tabTrash:"Recently deleted", trashHelp:"Deleted items stay here for 30 days.", trashEmpty:"Nothing deleted recently.", restore:"Restore", forever:"Delete forever", ariaFrom:"From date", ariaTo:"To date", histSum:"Found: {n}", ledRecIn2:"", ledPaidUp:"All settled", ledRemoved:"Removed.", ledDone:"Mark settled",
   nudge:n=>`Last backup ${n} days ago — tap to back up.`, nudgeNever:"No backup yet — tap to back up your data.", deleted:"Entry deleted", undo:"Undo",
   tabDash:"Home", allTime:"All-time", tabInsights:"Insights", insProj:"This month's outlook", insSpent:"Spent so far", insDue:"Still due (recurring)", insExpected:"Expected by month end", insSafe:"Safe to spend", perDay:"per day", insOverIncome:"Spending already exceeds income by", insBasisHist:"Income estimate uses your usual months.", insNoData:"Add a few weeks of entries to unlock insights.", insMovers:"Compared with your usual", insUnusual:"Unusual expenses", insDups:"Possible double entries", insRemove:"Remove duplicate", insSug:"Suggestions", insBud:"Suggested monthly budgets", insApply:"Apply to categories without a budget", insRec:"These seem to repeat every month", insAdd:"Make recurring", insUsual:"usual", insHow:"Calculated on your phone from your own entries — nothing is sent anywhere. Guidance only, not financial advice.", insApplied:"Budgets added.", insRecAdded:"Added — starts next month.", cancel:"Cancel", ok:"OK", ariaPrev:"Previous month", ariaNext:"Next month", ariaLang:"Change language", ariaTheme:"Change theme", ariaEdit:"Edit", ariaDelete:"Delete",
@@ -514,9 +535,11 @@ en:{
 },
 ta:{
   tagline:"உங்கள் தினசரி வருமானம் & செலவு புத்தகம்",
-  tabAi:"AI ஆலோசகர்", aiIntro:"இந்த மாத வரவு-செலவைப் பார்த்து AI எளிய ஆலோசனை தரும்.", aiPrivacy:"இலவச Puter கணக்கு தேவை (உள்நுழைவு popup-ல் திறக்கும்). வகை வாரியான மொத்தத் தொகைகள் மட்டுமே அனுப்பப்படும் — பெயர், குறிப்பு, தேதி அனுப்பப்படாது.", aiSignIn:"Puter மூலம் உள்நுழை", aiSignedAs:"உள்நுழைந்தவர்: ", aiSignOut:"வெளியேறு", aiAnalyse:"இந்த மாதத்தை ஆய்வு செய்", aiAskPh:"கேள்வி கேளுங்கள் (எ.கா. மளிகைச் செலவைக் குறைப்பது எப்படி?)", aiAskBtn:"கேள்", aiThinking:"யோசிக்கிறது…", aiError:"AI பதில் தர முடியவில்லை. இணையத்தைச் சரிபார்த்து மீண்டும் முயலவும்.", aiCancel:"உள்நுழைவு ரத்து செய்யப்பட்டது.", aiOffline:"இணையம் தேவை.", aiDisclaimer:"AI தவறாகவும் இருக்கலாம். இது நிதி ஆலோசனை அல்ல.", aboutTitle:"கணக்கு பற்றி", installBtn:"செயலியை நிறுவு", aboutFoot:"என்றும் இலவசம் · v5e",
+  tabAi:"AI ஆலோசகர்", aiIntro:"இந்த மாத வரவு-செலவைப் பார்த்து AI எளிய ஆலோசனை தரும்.", aiPrivacy:"இலவச Puter கணக்கு தேவை (உள்நுழைவு popup-ல் திறக்கும்). வகை வாரியான மொத்தத் தொகைகள் மட்டுமே அனுப்பப்படும் — பெயர், குறிப்பு, தேதி அனுப்பப்படாது.", aiSignIn:"Puter மூலம் உள்நுழை", aiSignedAs:"உள்நுழைந்தவர்: ", aiSignOut:"வெளியேறு", aiAnalyse:"இந்த மாதத்தை ஆய்வு செய்", aiAskPh:"கேள்வி கேளுங்கள் (எ.கா. மளிகைச் செலவைக் குறைப்பது எப்படி?)", aiAskBtn:"கேள்", aiThinking:"யோசிக்கிறது…", aiError:"AI பதில் தர முடியவில்லை. இணையத்தைச் சரிபார்த்து மீண்டும் முயலவும்.", aiCancel:"உள்நுழைவு ரத்து செய்யப்பட்டது.", aiOffline:"இணையம் தேவை.", aiDisclaimer:"AI தவறாகவும் இருக்கலாம். இது நிதி ஆலோசனை அல்ல.", aboutTitle:"கணக்கு பற்றி", installBtn:"செயலியை நிறுவு", aboutFoot:"என்றும் இலவசம் · v5h",
   aboutP1:"கணக்கு — அனைவருக்கும் இலவசம். ஒரு சாதாரண நடுத்தரக் குடும்பத்து மனிதரால், சுயதொழில் செய்வோர், சிறு கடைக்காரர்கள், இல்லத்தரசிகள் போன்றோர் வரவு-செலவை எளிமையாகக் கணக்கு வைக்க உருவாக்கப்பட்டது.",
   aboutP2:"விளம்பரம் இல்லை. பதிவு தேவையில்லை. சர்வர் இல்லை. உங்கள் பதிவுகள் உங்கள் போனிலேயே இருக்கும்; நீங்கள் காப்புப்பிரதி எடுத்தால் அல்லது விருப்பமான AI ஆலோசகரைப் பயன்படுத்தினால் (மொத்தத் தொகைகள் மட்டுமே அனுப்பப்படும்) மட்டுமே வெளியே செல்லும்.",
+  tabCollect:"UPI மூலம் வசூல்", colIntro:"வாடிக்கையாளர் GPay, PhonePe, Paytm-ல் ஸ்கேன் செய்ய QR காட்டுங்கள். பணம் நேரடியாக உங்கள் வங்கிக்கே வரும் — கணக்கு அதைத் தொடாது.", colSetupT:"உங்கள் UPI ID", colUpiId:"UPI ID (எ.கா. name@okhdfc)", colPayee:"செலுத்துபவருக்குத் தெரியும் பெயர்", colSave:"சேமி", colBad:"name@bank போல சரியான UPI ID கொடுக்கவும்", colEdit:"மாற்று", colFor:"யாரிடமிருந்து (விருப்பம்)", colMake:"QR காட்டு", colShare:"QR பகிர்", colRecv:"வந்தது ✓", colHide:"மூடு", colScan:"எந்த UPI செயலியிலும் ஸ்கேன் செய்யலாம்", colManual:"“வந்தது” என்பதை நீங்களே தொட வேண்டும் — உங்கள் வங்கியை கணக்கு பார்க்க முடியாது. முதலில் வங்கி/UPI செயலியில் பணம் வந்ததைப் பாருங்கள். கடை வசூலுக்கு தனிப்பட்ட ID-ஐ விட வணிக UPI ID நல்லது.", colNeedAmt:"தொகையை உள்ளிடவும்", colDone:"வசூல் பதிவானது", colTooLong:"QR உருவாக்க முடியவில்லை. பெயர்/குறிப்பைச் சுருக்கவும்.", colOwing:"தர வேண்டியவர்", colShort:"UPI QR", payVia:"UPI மூலம் செலுத்த: {id}", colShareText:"{n}-க்கு {a} செலுத்தவும்\nUPI ID: {id}", colNeedUpi:"முதலில் உங்கள் UPI ID-ஐச் சேமிக்கவும்", colSpoken:"{a} ரூபாய் வந்தது{f}", colSpokenFrom:", {n}",
+  autoT:"பணம் தானாக உறுதி", autoIntro:"GPay, PhonePe, Paytm அல்லது வங்கி SMS-ல் வரும் “பணம் வந்தது” அறிவிப்பை கணக்கு இந்த போனிலேயே படித்து, பதிவு செய்து, தொகையைச் சொல்லும் — சவுண்ட்பாக்ஸ் போல.", autoOn:"இயக்கத்தில் — பணம் வருவதைக் கவனிக்கிறது", autoOff:"நிறுத்தத்தில் — ‘இயக்கு’ தொடவும்", autoTurnOn:"இயக்கு", autoGrey:"சுவிட்ச் சாம்பல் நிறமா? App info → ⋮ (மேலே வலது) → Allow restricted settings தேர்ந்தெடுத்து மீண்டும் முயலவும்.", autoAppInfo:"App info", autoModeAuto:"தானாகப் பதிவு", autoModeAsk:"முதலில் கேள்", autoSpeakOn:"தொகை சொல்: ஆம்", autoSpeakOff:"தொகை சொல்: இல்லை", autoTest:"₹1 சோதனை", autoBrowser:"தானியங்கி உறுதி கணக்கு Android செயலியில் மட்டுமே — இணையதளம் அறிவிப்புகளைப் படிக்க முடியாது.", autoPending:"உங்கள் முடிவுக்கு", autoAdd:"சேர்", autoIgnore:"தவிர்", autoMissed:"கண்டறியவில்லையா? சமீபத்திய அறிவிப்புகள்", autoMissedHint:"இவற்றை நகலெடுத்து டெவலப்பருக்கு அனுப்பினால் கண்டறிதலை மேம்படுத்தலாம்.", autoNone:"இன்னும் எதுவுமில்லை.", autoDetected:"பணம் வந்தது: {a}",
   tabLedger:"கடன்", ledGet:"வர வேண்டியது", ledOwe:"கொடுக்க வேண்டியது", ledDirGet:"அவர் தர வேண்டும்", ledDirGive:"நான் தர வேண்டும்", ledPerson:"பெயர்", ledEmpty:"கடன் பதிவுகள் இல்லை.", ledNeed:"பெயர், தொகையை உள்ளிடவும்.", ledRecIn:"வருமானத்தில் சேர்க்கப்பட்டது.", ledRecOut:"செலவில் சேர்க்கப்பட்டது.", aiOpenWeb:"AI ஆலோசகரை உலாவியில் திற", aiNativeNote:"Puter உள்நுழைவுக்கு உலாவி தேவை. மொத்தத் தொகைகள் மட்டுமே அனுப்பப்படும் (பெயர், குறிப்பு இல்லை).", ihTitle:"கணக்கு செயலியைப் போனில் நிறுவுங்கள்", ihAndroid:"Chrome-ல்: மேலே வலது ⋮ தட்டவும் → 'Install app' (அல்லது 'Add to Home screen'). பிறகு முகப்புத் திரையிலிருந்து முழுத்திரையில் திறக்கும்; இணையம் இல்லாமலும் வேலை செய்யும்.", ihIos:"Safari-ல்: Share ⬆ தட்டவும் → 'Add to Home Screen'.", ihWebview:"இது வேறு செயலிக்குள் திறந்துள்ளது. ⋮ தட்டி 'Chrome-ல் திற' என்பதைத் தேர்ந்தெடுத்து, அங்கே நிறுவுங்கள்.", ihGot:"சரி", ihShow:"நிறுவும் உதவியைக் காட்டு", ledAddBtn:"+ கடன் சேர்", todayT:"இன்று", quickT:"விரைவுப் பதிவு", shareSum:"சுருக்கத்தைப் பகிர்", copied:"நகலெடுக்கப்பட்டது.", remindBtn:"நினைவூட்டு", recvBtn:"பெற்றது", payBtn:"கொடுத்தது", ledPhone:"WhatsApp எண் (விருப்பம்)", ledCount:"நிலுவை: {n}", remindMsg:"வணக்கம் {n}, நினைவூட்டல்: {a} எனக்கு வர வேண்டியுள்ளது. முடிந்தபோது கொடுக்கவும். நன்றி!", codeShare:"காப்புக் குறியீட்டைப் பகிர்", codeRestore:"குறியீட்டிலிருந்து மீட்டெடு", codeHelp:"உங்கள் முழுக் கணக்கையும் ஒரே உரையாக அனுப்பும் (WhatsApp-ல் அனுப்பலாம்). புதிய போனுக்கு மாற: குறியீட்டைப் பகிர்ந்து, அங்கே கணக்கு செயலியில் 'குறியீட்டிலிருந்து மீட்டெடு' தட்டவும்.", codeAsk:"காப்புக் குறியீட்டை ஒட்டவும்", codeBad:"அந்தக் குறியீடு சரியில்லை.", onbTitle:"கணக்குக்கு வரவேற்கிறோம்", onbLang:"மொழியைத் தேர்ந்தெடுக்கவும்", onbWho:"எதற்காகப் பயன்படுத்துகிறீர்கள்?", onbShop:"என் கடை / தொழில்", onbHome:"என் வீடு", onbSelf:"என் சொந்த வேலை (தையல், ஃப்ரீலான்ஸ்…)", onbSkip:"இப்போது வேண்டாம்", onbAgain:"மொழி & அமைப்பை மாற்று", tabTrash:"சமீபத்தில் நீக்கியவை", trashHelp:"நீக்கியவை 30 நாட்கள் இங்கே இருக்கும்.", trashEmpty:"சமீபத்தில் எதுவும் நீக்கப்படவில்லை.", restore:"மீட்டெடு", forever:"நிரந்தரமாக நீக்கு", ariaFrom:"தொடக்கத் தேதி", ariaTo:"முடிவுத் தேதி", histSum:"கிடைத்தவை: {n}", ledPaidUp:"எல்லாம் தீர்ந்தது", ledRemoved:"நீக்கப்பட்டது.", ledDone:"தீர்க்கப்பட்டது",
   nudge:n=>`கடைசி காப்புப்பிரதி ${n} நாட்களுக்கு முன் — தொட்டு சேமிக்கவும்.`, nudgeNever:"இன்னும் காப்புப்பிரதி இல்லை — தொட்டு சேமிக்கவும்.", deleted:"பதிவு நீக்கப்பட்டது", undo:"செயல்நீக்கு",
   tabDash:"முகப்பு", allTime:"மொத்த இருப்பு", tabInsights:"நுண்ணறிவு", insProj:"இந்த மாதக் கணிப்பு", insSpent:"இதுவரை செலவு", insDue:"இன்னும் வர வேண்டியது (தொடர்)", insExpected:"மாத இறுதிக்குள் எதிர்பார்ப்பு", insSafe:"பாதுகாப்பாகச் செலவிடலாம்", perDay:"ஒரு நாளுக்கு", insOverIncome:"செலவு ஏற்கனவே வருமானத்தை மீறியுள்ளது:", insBasisHist:"வருமான மதிப்பீடு உங்கள் வழக்கமான மாதங்களை அடிப்படையாகக் கொண்டது.", insNoData:"நுண்ணறிவுக்கு சில வாரப் பதிவுகளைச் சேர்க்கவும்.", insMovers:"வழக்கத்துடன் ஒப்பீடு", insUnusual:"வழக்கத்துக்கு மாறான செலவுகள்", insDups:"இரட்டைப் பதிவுகளாக இருக்கலாம்", insRemove:"நகலை நீக்கு", insSug:"பரிந்துரைகள்", insBud:"பரிந்துரைக்கப்பட்ட மாத பட்ஜெட்", insApply:"பட்ஜெட் இல்லாத வகைகளுக்குப் பயன்படுத்து", insRec:"இவை மாதந்தோறும் மீண்டும் வருகின்றன போலத் தெரிகிறது", insAdd:"தொடர் பதிவாக்கு", insUsual:"வழக்கம்", insHow:"உங்கள் பதிவுகளிலிருந்து உங்கள் போனிலேயே கணக்கிடப்பட்டது — எங்கும் அனுப்பப்படாது. வழிகாட்டுதல் மட்டுமே, நிதி ஆலோசனை அல்ல.", insApplied:"பட்ஜெட் சேர்க்கப்பட்டது.", insRecAdded:"சேர்க்கப்பட்டது — அடுத்த மாதம் தொடங்கும்.", cancel:"ரத்து", ok:"சரி", ariaPrev:"முந்தைய மாதம்", ariaNext:"அடுத்த மாதம்", ariaLang:"மொழியை மாற்று", ariaTheme:"தோற்றத்தை மாற்று", ariaEdit:"திருத்து", ariaDelete:"நீக்கு",
@@ -627,14 +650,15 @@ function renderLedger(){
   const gs=Object.values(groups).map(g=>{ g.out=r2(g.items.reduce((x,l)=>x+ledOwed(l),0)); g.items.sort((a,b)=>(a.settled-b.settled)||(a.date<b.date?1:(a.date>b.date?-1:b.id-a.id))); return g; }).sort((a,b)=>((b.out>0)-(a.out>0))||(b.out-a.out));
   box.innerHTML=gs.map(g=>{ const open=ledOpen.has(g.k), cls=g.dir==="get"?"in":"ex", openN=g.items.filter(l=>!l.settled).length;
     return `<div class="person${open?" open":""}${g.out>0?"":" done"}" data-k="${esc(g.k)}"><div class="phead" role="button" tabindex="0" aria-expanded="${open}"><div class="dot ${cls}"></div><div class="meta"><div class="cat">${esc(g.name)}</div><div class="note">${g.out>0?t("ledCount").replace("{n}",openN):t("ledPaidUp")}</div></div><div class="amt ${cls}">${fmt(g.out)}</div><span class="chev" aria-hidden="true">›</span></div>`
-     +(g.out>0?`<div class="pacts"><button type="button" class="pbtn pri ppay">${t(g.dir==="get"?"recvBtn":"payBtn")}</button>${g.dir==="get"?`<button type="button" class="pbtn premind">${t("remindBtn")}</button>`:""}</div>`:"")
+     +(g.out>0?`<div class="pacts"><button type="button" class="pbtn pri ppay">${t(g.dir==="get"?"recvBtn":"payBtn")}</button>${g.dir==="get"?`<button type="button" class="pbtn premind">${t("remindBtn")}</button><button type="button" class="pbtn pqr">${t("colShort")}</button>`:""}</div>`:"")
      +`<div class="pbody">${g.items.map(ledRow).join("")}</div></div>`; }).join("");
   const byKey=k=>groups[k];
   box.querySelectorAll(".person").forEach(el=>{ const g=byKey(el.dataset.k);
     const tog=()=>{ if(ledOpen.has(g.k)) ledOpen.delete(g.k); else ledOpen.add(g.k); renderLedger(); };
     const h=el.querySelector(".phead"); h.onclick=tog; h.onkeydown=ev=>{ if(ev.key==="Enter"||ev.key===" "){ ev.preventDefault(); tog(); } };
     const pp=el.querySelector(".ppay"); if(pp) pp.onclick=()=>ledPayPerson(g);
-    const rm=el.querySelector(".premind"); if(rm) rm.onclick=()=>window.open(waLink(g.phone,t("remindMsg").replace("{n}",g.name).replace("{a}",fmt(g.out))),"_blank","noopener");
+    const rm=el.querySelector(".premind"); if(rm) rm.onclick=()=>window.open(waLink(g.phone,remindText(g)),"_blank","noopener");
+    const pq=el.querySelector(".pqr"); if(pq) pq.onclick=()=>{ document.getElementById("colFor").value=g.name; document.getElementById("colAmt").value=String(g.out); document.getElementById("colOut").innerHTML=""; go("collect"); };
   });
   box.querySelectorAll(".acts span").forEach(b=>b.onkeydown=ev=>{ if(ev.key==="Enter"||ev.key===" "){ ev.preventDefault(); b.click(); } });
   box.querySelectorAll(".ledok").forEach(b=>b.onclick=()=>{ const l=ledger.find(x=>x.id===Number(b.dataset.id)); if(l){ if(l.settled){ ledUnpay(l); ledAfter(l,false); } else { ledPay(l,l.amt-(l.paid||0)); ledAfter(l,true); } } });
@@ -677,7 +701,7 @@ document.getElementById("langToggle").onclick=()=>{
 document.getElementById("btnIn").onclick=()=>{type="income"; document.getElementById("btnIn").classList.add("on"); document.getElementById("btnEx").classList.remove("on"); fillCats();};
 document.getElementById("btnEx").onclick=()=>{type="expense"; document.getElementById("btnEx").classList.add("on"); document.getElementById("btnIn").classList.remove("on"); fillCats();};
 
-const SUB=["trash","budgets","ai","data","cats","rec","report","insights"];
+const SUB=["collect","trash","budgets","ai","data","cats","rec","report","insights"];
 let curPanel="dash";
 function go(n,pop){ document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active")); document.getElementById("p-"+n).classList.add("active"); const g=SUB.includes(n)?"more":n; document.querySelectorAll("#bnav .tab").forEach(x=>x.classList.toggle("active",x.dataset.t===g)); if(n==="ai"){ if(IS_NATIVE) aiRefresh(); else ensurePuter().then(aiRefresh).catch(()=>{}); } if(n==="add"&&!editId) document.getElementById("date").value=today(); if(n==="data"){ try{ if(localStorage.getItem("kanakku_gcid")) loadGsi().catch(()=>{}); }catch(e){} } if(!pop&&n!==curPanel&&window.history&&history.pushState){ try{ history.pushState({p:n},""); }catch(e){} } curPanel=n; window.scrollTo(0,0); renderAll(); }
 document.querySelectorAll(".tab").forEach(el=>{ el.onclick=()=>go(el.dataset.t); });
@@ -928,7 +952,7 @@ function renderInstallHelp(){
 document.getElementById("ihShowBtn").onclick=()=>{ try{ localStorage.removeItem("kanakku_ih"); }catch(e){} renderInstallHelp(); go("dash"); };
 window.addEventListener("appinstalled",()=>{ try{ localStorage.setItem("kanakku_ih","1"); }catch(e){} renderInstallHelp(); });
 function renderAll(){
-  renderStats(); renderDonut(); renderRecent(); renderHistory(); renderBudgets(); renderLedger(); renderNudge(); renderCats(); renderRec(); renderReport(); renderHomeIns(); renderInsights(); renderQuick(); renderTrash(); renderInstallHelp();
+  renderStats(); renderDonut(); renderRecent(); renderHistory(); renderBudgets(); renderLedger(); renderNudge(); renderCats(); renderRec(); renderReport(); renderHomeIns(); renderInsights(); renderQuick(); renderTrash(); if(typeof renderCollect==="function") renderCollect(); renderInstallHelp();
 }
 
 document.getElementById("currencySym").oninput=(e)=>{
@@ -1277,6 +1301,168 @@ if("serviceWorker" in navigator){
   window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
 }
 try{ if(navigator.storage&&navigator.storage.persist) navigator.storage.persist(); localStorage.setItem("kanakku_schema","2"); }catch(e){}
+
+/* ---------- UPI collect (QR is generated on this device; no money passes through Kanakku) ---------- */
+/* Tiny offline QR encoder: byte mode, ECC level M, versions 1-10 */
+function qrMatrix(text){
+  const data=Array.from(new TextEncoder().encode(text));
+  const ECC=[10,16,26,18,24,16,18,22,22,26], BLK=[1,1,1,2,2,4,4,4,5,5];
+  const rawMods=v=>{ let r=(16*v+128)*v+64; if(v>=2){ const n=Math.floor(v/7)+2; r-=(25*n-10)*n-55; if(v>=7) r-=36; } return r; };
+  let ver=0;
+  for(let v=1;v<=10;v++){ const cap=Math.floor(rawMods(v)/8)-ECC[v-1]*BLK[v-1]; const cc=v<10?8:16; if(4+cc+data.length*8<=cap*8){ ver=v; break; } }
+  if(!ver) return null;
+  const cap=Math.floor(rawMods(ver)/8)-ECC[ver-1]*BLK[ver-1], size=ver*4+17;
+  const bits=[]; const put=(val,n)=>{ for(let i=n-1;i>=0;i--) bits.push((val>>>i)&1); };
+  put(4,4); put(data.length,ver<10?8:16); data.forEach(b=>put(b,8));
+  put(0,Math.min(4,cap*8-bits.length)); while(bits.length%8) bits.push(0);
+  for(let p=0xEC;bits.length<cap*8;p^=0xEC^0x11) put(p,8);
+  const cw=[]; for(let i=0;i<bits.length;i+=8){ let b=0; for(let j=0;j<8;j++) b=b<<1|bits[i+j]; cw.push(b); }
+  // Reed-Solomon
+  const EXP=new Array(512),LOG=new Array(256); let x=1; for(let i=0;i<255;i++){ EXP[i]=x; LOG[x]=i; x<<=1; if(x&256) x^=0x11D; } for(let i=255;i<512;i++) EXP[i]=EXP[i-255];
+  const mul=(a,b)=>a&&b?EXP[LOG[a]+LOG[b]]:0;
+  const ne=ECC[ver-1]; let gen=[1]; for(let i=0;i<ne;i++){ const g=new Array(gen.length+1).fill(0); for(let j=0;j<gen.length;j++){ g[j]^=gen[j]; g[j+1]^=mul(gen[j],EXP[i]); } gen=g; }
+  const nb=BLK[ver-1], tot=Math.floor(rawMods(ver)/8), nShort=nb-tot%nb, shortLen=Math.floor(tot/nb);
+  const blocks=[]; let k=0;
+  for(let i=0;i<nb;i++){ const dl=shortLen-ne+(i<nShort?0:1); const d=cw.slice(k,k+dl); k+=dl;
+    const rem=new Array(ne).fill(0); d.forEach(b=>{ const f=b^rem.shift(); rem.push(0); for(let j=0;j<ne;j++) rem[j]^=mul(gen[j+1],f); });
+    blocks.push({d,e:rem}); }
+  const out=[]; const maxD=Math.max(...blocks.map(b=>b.d.length));
+  for(let i=0;i<maxD;i++) blocks.forEach(b=>{ if(i<b.d.length) out.push(b.d[i]); });
+  for(let i=0;i<ne;i++) blocks.forEach(b=>out.push(b.e[i]));
+  // matrix
+  const M=Array.from({length:size},()=>new Array(size).fill(false)), F=Array.from({length:size},()=>new Array(size).fill(false));
+  const set=(r,c,v)=>{ if(r>=0&&c>=0&&r<size&&c<size){ M[r][c]=v; F[r][c]=true; } };
+  const finder=(r,c)=>{ for(let dy=-4;dy<=4;dy++) for(let dx=-4;dx<=4;dx++){ const d=Math.max(Math.abs(dx),Math.abs(dy)); set(r+dy,c+dx,d!==2&&d!==4); } };
+  finder(3,3); finder(3,size-4); finder(size-4,3);
+  for(let i=0;i<size;i++){ if(!F[6][i]) set(6,i,i%2===0); if(!F[i][6]) set(i,6,i%2===0); }
+  if(ver>=2){ const n=Math.floor(ver/7)+2, step=Math.ceil((ver*4+4)/(n*2-2))*2; const pos=[6]; for(let p=size-7;pos.length<n;p-=step) pos.splice(1,0,p);
+    for(let a=0;a<n;a++) for(let b=0;b<n;b++){ if((a===0&&b===0)||(a===0&&b===n-1)||(a===n-1&&b===0)) continue;
+      for(let dy=-2;dy<=2;dy++) for(let dx=-2;dx<=2;dx++) set(pos[a]+dy,pos[b]+dx,Math.max(Math.abs(dx),Math.abs(dy))!==1); } }
+  const fmt=(mask)=>{ const d=(0<<3)|mask; let r=d; for(let i=0;i<10;i++) r=(r<<1)^((r>>>9)*0x537); const bits=((d<<10)|r)^0x5412; const g=i=>((bits>>>i)&1)===1;
+    for(let i=0;i<=5;i++) set(i,8,g(i)); set(7,8,g(6)); set(8,8,g(7)); set(8,7,g(8)); for(let i=9;i<15;i++) set(8,14-i,g(i));
+    for(let i=0;i<8;i++) set(8,size-1-i,g(i)); for(let i=8;i<15;i++) set(size-15+i,8,g(i)); set(size-8,8,true); };
+  fmt(0);
+  if(ver>=7){ let r=ver; for(let i=0;i<12;i++) r=(r<<1)^((r>>>11)*0x1F25); const bits=(ver<<12)|r;
+    for(let i=0;i<18;i++){ const v=((bits>>>i)&1)===1, a=size-11+i%3, b=Math.floor(i/3); set(b,a,v); set(a,b,v); } }
+  const placeBits=[]; for(const b of out) for(let i=7;i>=0;i--) placeBits.push((b>>>i)&1);
+  const base=M.map(r=>r.slice()); let bi=0;
+  for(let right=size-1;right>=1;right-=2){ if(right===6) right=5;
+    for(let v=0;v<size;v++) for(let j=0;j<2;j++){ const c=right-j, up=((right+1)&2)===0, r=up?size-1-v:v;
+      if(!F[r][c]&&bi<placeBits.length){ base[r][c]=placeBits[bi++]===1; } } }
+  const maskFn=[(r,c)=>(r+c)%2===0,(r,c)=>r%2===0,(r,c)=>c%3===0,(r,c)=>(r+c)%3===0,(r,c)=>(Math.floor(r/2)+Math.floor(c/3))%2===0,(r,c)=>r*c%2+r*c%3===0,(r,c)=>(r*c%2+r*c%3)%2===0,(r,c)=>((r+c)%2+r*c%3)%2===0];
+  const pen=m=>{ let p=0; for(let a=0;a<size;a++){ for(const row of [true,false]){ let run=1; for(let b=1;b<size;b++){ const cur=row?m[a][b]:m[b][a], prev=row?m[a][b-1]:m[b-1][a]; if(cur===prev){ run++; if(run===5) p+=3; else if(run>5) p++; } else run=1; } } }
+    for(let r=0;r<size-1;r++) for(let c=0;c<size-1;c++){ const v=m[r][c]; if(v===m[r][c+1]&&v===m[r+1][c]&&v===m[r+1][c+1]) p+=3; }
+    let dark=0; m.forEach(r=>r.forEach(v=>{ if(v) dark++; })); p+=Math.floor(Math.abs(dark*20-size*size*10)/(size*size))*10; return p; };
+  let best=null,bp=1e9,bm=0;
+  for(let mk=0;mk<8;mk++){ const m=base.map((row,r)=>row.map((v,c)=>F[r][c]?v:(v!==maskFn[mk](r,c)))); fmt(mk);
+    const mm=m.map((row,r)=>row.map((v,c)=>F[r][c]?M[r][c]:v)); const p=pen(mm); if(p<bp){ bp=p; best=mm; bm=mk; } }
+  fmt(bm); return best.map((row,r)=>row.map((v,c)=>F[r][c]?M[r][c]:v));
+}
+
+let colCur=null;
+const UPI_RE=/^[a-zA-Z0-9._-]{2,64}@[a-zA-Z0-9]{2,32}$/;
+let upiEdit=false;
+function loadUpi(){ try{ const o=JSON.parse(localStorage.getItem("kanakku_upi")||"null"); if(o&&UPI_RE.test(String(o.id||""))) return {id:o.id,name:String(o.name||"").slice(0,40)}; }catch(e){} return null; }
+function upiLink(u,amt,note,nameMax){ const nm=(u.name||"Kanakku").slice(0,nameMax||30); return "upi://pay?pa="+u.id+"&pn="+encodeURIComponent(nm)+(amt>0?"&am="+amt.toFixed(2):"")+(note?"&tn="+encodeURIComponent(note):"")+"&cu=INR"; }
+function upiBuild(u,amt,note){ const tries=[[note,30],["",30],["",12]]; for(const [n,m] of tries){ const link=upiLink(u,amt,n,m), mx=qrMatrix(link); if(mx) return {link,mx}; } return null; }
+function qrSvg(mx){ const n=mx.length, q=4; let d=""; mx.forEach((row,y)=>{ let x=0; while(x<n){ if(row[x]){ let e=x; while(e<n&&row[e]) e++; d+="M"+(x+q)+" "+(y+q)+"h"+(e-x)+"v1h-"+(e-x)+"z"; x=e; } else x++; } }); return `<svg viewBox="0 0 ${n+2*q} ${n+2*q}" shape-rendering="crispEdges" role="img" aria-label="UPI QR"><rect width="100%" height="100%" fill="#fff"/><path d="${d}" fill="#000"/></svg>`; }
+function remindText(g){ let m=t("remindMsg").replace("{n}",g.name).replace("{a}",fmt(g.out)); const u=loadUpi(); if(u){ const b=upiBuild(u,g.out,""); m+="\n\n"+t("payVia").replace("{id}",u.id)+(b?"\n"+b.link:""); } return m; }
+function colOwing(){ const gs={}; ledger.forEach(l=>{ if(l.dir!=="get") return; const g=gs[ledKey(l)]||(gs[ledKey(l)]={name:l.name,out:0}); g.out=r2(g.out+ledOwed(l)); }); return Object.values(gs).filter(g=>g.out>0).sort((a,b)=>b.out-a.out).slice(0,6); }
+function renderCollect(){
+  const box=document.getElementById("colSetup"); if(!box) return; const u=loadUpi();
+  {
+    if(u&&!upiEdit) box.innerHTML=`<div style="display:flex;align-items:center;gap:12px"><div style="flex:1;min-width:0"><div style="font-weight:700">${esc(u.name||"Kanakku")}</div><div style="font-size:.9rem;color:var(--sub);word-break:break-all">${esc(u.id)}</div></div><button type="button" class="pbtn" id="colEditBtn">${t("colEdit")}</button></div>`;
+    else box.innerHTML=`<div style="font-weight:700;margin-bottom:2px">${t("colSetupT")}</div><label>${t("colUpiId")}</label><input type="text" id="colId" autocapitalize="off" autocomplete="off" spellcheck="false" maxlength="80" value="${esc(u?u.id:"")}"><label>${t("colPayee")}</label><input type="text" id="colPn" maxlength="40" value="${esc(u?u.name:"")}"><button type="button" class="submit" id="colSave">${t("colSave")}</button>`;
+    const eb=document.getElementById("colEditBtn"); if(eb) eb.onclick=()=>{ upiEdit=true; renderCollect(); };
+    const sv=document.getElementById("colSave"); if(sv) sv.onclick=()=>{ const id=document.getElementById("colId").value.trim(), nm=document.getElementById("colPn").value.trim(); if(!UPI_RE.test(id)){ showToast(t("colBad")); document.getElementById("colId").focus(); return; } try{ localStorage.setItem("kanakku_upi",JSON.stringify({id,name:nm})); }catch(e){ storageFail(); } upiEdit=false; renderCollect(); };
+  }
+  document.getElementById("colNames").innerHTML=[...new Set(ledger.filter(l=>l.dir==="get").map(l=>l.name))].map(n=>`<option value="${esc(n)}">`).join("");
+  const ch=document.getElementById("colChips"); ch.innerHTML=colOwing().map(g=>`<button type="button" class="pbtn" data-n="${esc(g.name)}" data-a="${g.out}">${esc(g.name)} · ${fmt(g.out)}</button>`).join("");
+  ch.querySelectorAll("button").forEach(b=>b.onclick=()=>{ document.getElementById("colFor").value=b.dataset.n; document.getElementById("colAmt").value=b.dataset.a; });
+  if(document.getElementById("p-collect").classList.contains("active")) renderAuto();
+}
+async function colQrImage(u,amt,link,mx){
+  const cv=document.createElement("canvas"); cv.width=900; cv.height=1180; const x=cv.getContext("2d"), F=(lang==="ta"?"'Noto Sans Tamil',":"")+"system-ui,sans-serif";
+  x.fillStyle="#0a6169"; x.fillRect(0,0,900,1180); x.fillStyle="#fff"; if(x.roundRect){ x.beginPath(); x.roundRect(60,190,780,780,36); x.fill(); } else x.fillRect(60,190,780,780);
+  x.fillStyle="#f2c75c"; x.font="700 48px "+F; x.fillText(u.name||"Kanakku",60,110,780); x.fillStyle="#c4f1f4"; x.font="500 34px "+F; x.fillText(t("colScan"),60,160,780);
+  const n=mx.length, sc=Math.floor(700/(n+8)), off=Math.floor((780-sc*n)/2); x.fillStyle="#fff"; x.fillRect(60,190,780,780); x.fillStyle="#000";
+  mx.forEach((row,r)=>row.forEach((v,c)=>{ if(v) x.fillRect(60+off+c*sc,190+off+r*sc,sc,sc); }));
+  x.fillStyle="#fff"; if(amt>0){ x.font="800 96px "+F; x.fillText(fmt(amt),60,1085,780); } x.fillStyle="#c4f1f4"; x.font="500 36px "+F; x.fillText(u.id,60,1140,780);
+  const blob=await new Promise(r=>cv.toBlob(r,"image/png")); return blob?new File([blob],"kanakku-upi-qr.png",{type:"image/png"}):null;
+}
+function speakRecv(v,name){ try{ if(!window.speechSynthesis) return; const a=Number.isInteger(v)?String(v):v.toFixed(2); const msg=t("colSpoken").replace("{a}",a).replace("{f}",name?t("colSpokenFrom").replace("{n}",name):""); const ut=new SpeechSynthesisUtterance(msg); ut.lang=lang==="ta"?"ta-IN":"en-IN"; speechSynthesis.cancel(); speechSynthesis.speak(ut); if(navigator.vibrate) navigator.vibrate(120); }catch(e){} }
+function colReceived(v,name,note,silent){
+  let left=v; const touched=[]; let extra=null;
+  if(name){ const k="get|"+name.trim().toLowerCase(); ledger.filter(l=>ledKey(l)===k&&!l.settled).sort((a,b)=>a.date<b.date?-1:(a.date>b.date?1:a.id-b.id)).forEach(l=>{ if(left<=0) return; const take=Math.min(left,ledOwed(l)); const n0=(l.pays||[]).length; ledPay(l,take); if((l.pays||[]).length>n0){ touched.push(l); left=r2(left-take); } }); }
+  if(left>0){ extra={id:nextId(),type:"income",amt:left,cat:"Business Income",note:(name||note||"UPI").slice(0,60),date:today()}; entries.unshift(extra); persist(); }
+  saveLedger(); renderAll(); if(!silent) speakRecv(v,name);
+  showToast(t("colDone")+" · "+fmt(v),()=>{ touched.slice().reverse().forEach(ledUnpay); if(extra){ entries=entries.filter(e=>e.id!==extra.id); persist(); } saveLedger(); renderAll(); });
+}
+document.getElementById("colMake").onclick=async ()=>{
+  const u=loadUpi(); if(!u){ showToast(t("colNeedUpi")); upiEdit=true; renderCollect(); return; }
+  const amt=parseAmt(document.getElementById("colAmt").value), name=document.getElementById("colFor").value.trim(), note=document.getElementById("colNote").value.trim();
+  if(!(amt>0)||amt>=1e9){ showToast(t("colNeedAmt")); document.getElementById("colAmt").focus(); return; }
+  const b=upiBuild(u,amt,note||name); colCur={amt,name,note}; const out=document.getElementById("colOut"); if(!b){ showToast(t("colTooLong")); return; }
+  out.innerHTML=`<div class="qrbox">${qrSvg(b.mx)}<div class="qa">${fmt(amt)}</div><div class="qs">${esc(u.name||"")} · ${esc(u.id)}</div></div><div class="pacts"><button type="button" class="pbtn pri" id="colRecv" style="flex:1">${t("colRecv")}</button><button type="button" class="pbtn" id="colShareBtn" style="flex:1">${t("colShare")}</button><button type="button" class="pbtn" id="colClose">${t("colHide")}</button></div>`;
+  out.scrollIntoView({behavior:"smooth",block:"nearest"});
+  document.getElementById("colClose").onclick=()=>{ out.innerHTML=""; colCur=null; };
+  document.getElementById("colRecv").onclick=()=>{ colReceived(amt,name,note); out.innerHTML=""; document.getElementById("colAmt").value=""; document.getElementById("colFor").value=""; document.getElementById("colNote").value=""; };
+  document.getElementById("colShareBtn").onclick=async ()=>{
+    const text=t("colShareText").replace("{a}",fmt(amt)).replace("{n}",u.name||u.id).replace("{id}",u.id)+"\n"+b.link; let file=null; try{ file=await colQrImage(u,amt,b.link,b.mx); }catch(e){}
+    try{ if(file&&navigator.canShare&&navigator.canShare({files:[file]})){ await navigator.share({files:[file],text}); return; } }catch(e){ if(e&&e.name==="AbortError") return; }
+    try{ if(navigator.share){ await navigator.share({text}); return; } }catch(e){ if(e&&e.name==="AbortError") return; }
+    try{ await navigator.clipboard.writeText(text); showToast(t("copied")); }catch(e){ if(file) downloadBlob(file,file.name,"image/png"); }
+  };
+};
+
+/* ---------- Auto-confirm (Android app only): native side reads "money received" notifications ---------- */
+const PL=(()=>{ try{ return IS_NATIVE&&window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.PayListener||null; }catch(e){ return null; } })();
+function lsGet(k,d){ try{ const v=localStorage.getItem(k); return v===null?d:v; }catch(e){ return d; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+let autoMode=lsGet("kanakku_automode","auto"), autoSpeak=lsGet("kanakku_autospeak","1")!=="0", plEnabled=false;
+function jget(k){ try{ const a=JSON.parse(lsGet(k,"[]")); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+function plAck(id){ try{ PL&&PL.ack({ids:[id]}); }catch(e){} }
+function autoApply(amt,who){
+  const q=document.querySelector("#colOut .qrbox");
+  if(q&&colCur&&r2(colCur.amt)===amt){ const c=colCur; document.getElementById("colOut").innerHTML=""; colCur=null; colReceived(amt,c.name,c.note,true); return; }
+  const w=String(who||"").trim().toLowerCase(); let hit="";
+  if(w.length>=3){ const g=colOwing().find(x=>{ const n=x.name.toLowerCase(); return n.includes(w)||w.includes(n); }); if(g) hit=g.name; }
+  colReceived(amt,hit,hit?"":(who||"UPI"),true);
+}
+function handlePayment(p){
+  if(!p||!p.id) return; const done=jget("kanakku_paydone");
+  if(done.includes(p.id)){ plAck(p.id); return; }
+  done.push(p.id); lsSet("kanakku_paydone",JSON.stringify(done.slice(-200)));
+  const amt=r2(Number(p.amt)); plAck(p.id); if(!(amt>0)) return;
+  if(autoMode==="ask"){ const pend=jget("kanakku_paypend"); pend.push({id:p.id,amt,who:p.who||""}); lsSet("kanakku_paypend",JSON.stringify(pend.slice(-30))); showToast(t("autoDetected").replace("{a}",fmt(amt))+(p.who?" · "+p.who:"")); renderAuto(); }
+  else autoApply(amt,p.who);
+}
+async function plDrain(){ if(!PL) return; try{ const r=await PL.drain(); (r.items||[]).forEach(handlePayment); }catch(e){} }
+async function renderAuto(){
+  const box=document.getElementById("colAuto"); if(!box) return;
+  if(!PL){ box.innerHTML=`<div style="font-weight:700;margin-bottom:6px">${t("autoT")}</div><div style="font-size:.9rem;line-height:1.5;color:var(--sub)">${t("autoBrowser")}</div>`; return; }
+  try{ PL.config({lang,speak:autoSpeak}); }catch(e){}
+  let en=plEnabled; try{ const r=await PL.status(); en=!!r.enabled; plEnabled=en; }catch(e){}
+  let miss=[]; try{ miss=(await PL.unparsed()).items||[]; }catch(e){}
+  const pend=jget("kanakku_paypend");
+  box.innerHTML=`<div style="font-weight:700;margin-bottom:6px">${t("autoT")}</div><div style="font-size:.9rem;line-height:1.5;color:var(--sub)">${t("autoIntro")}</div>
+  <div style="margin:12px 0;font-weight:700;color:${en?"var(--income)":"var(--expense)"}">${en?"● "+t("autoOn"):"○ "+t("autoOff")}</div>
+  ${en?"":`<div class="pacts"><button type="button" class="pbtn pri" id="autoGo">${t("autoTurnOn")}</button><button type="button" class="pbtn" id="autoInfo">${t("autoAppInfo")}</button></div><div style="font-size:.82rem;line-height:1.5;color:var(--sub);margin-bottom:8px">${t("autoGrey")}</div>`}
+  <div class="seg" style="margin-bottom:10px"><button type="button" id="autoM1" class="${autoMode==="auto"?"on":""}">${t("autoModeAuto")}</button><button type="button" id="autoM2" class="${autoMode==="ask"?"on":""}">${t("autoModeAsk")}</button></div>
+  <div class="pacts"><button type="button" class="pbtn" id="autoSp">${t(autoSpeak?"autoSpeakOn":"autoSpeakOff")}</button><button type="button" class="pbtn" id="autoTest">${t("autoTest")}</button></div>
+  ${pend.length?`<div style="font-weight:700;margin:12px 0 6px">${t("autoPending")}</div>`+pend.map(x=>`<div class="pacts" style="align-items:center;margin-bottom:6px"><div style="flex:1;min-width:0"><b>${fmt(x.amt)}</b> ${esc(x.who)}</div><button type="button" class="pbtn pri" data-add="${esc(x.id)}">${t("autoAdd")}</button><button type="button" class="pbtn" data-ign="${esc(x.id)}">${t("autoIgnore")}</button></div>`).join(""):""}
+  <details style="margin-top:12px"><summary style="font-size:.9rem;color:var(--sub)">${t("autoMissed")}</summary><div style="font-size:.82rem;color:var(--sub);margin:6px 0">${t("autoMissedHint")}</div>${miss.length?miss.slice().reverse().map(m=>`<div style="font-size:.82rem;word-break:break-word;padding:6px 0;border-top:1px solid var(--line)"><b>${esc(m.pkg)}</b><br>${esc(m.text)}</div>`).join(""):`<div style="font-size:.82rem">${t("autoNone")}</div>`}</details>`;
+  const q=id=>document.getElementById(id);
+  if(q("autoGo")) q("autoGo").onclick=()=>{ try{ PL.openSettings(); }catch(e){} };
+  if(q("autoInfo")) q("autoInfo").onclick=()=>{ try{ PL.openAppInfo(); }catch(e){} };
+  q("autoM1").onclick=()=>{ autoMode="auto"; lsSet("kanakku_automode","auto"); renderAuto(); };
+  q("autoM2").onclick=()=>{ autoMode="ask"; lsSet("kanakku_automode","ask"); renderAuto(); };
+  q("autoSp").onclick=()=>{ autoSpeak=!autoSpeak; lsSet("kanakku_autospeak",autoSpeak?"1":"0"); renderAuto(); };
+  q("autoTest").onclick=()=>{ try{ PL.test(); }catch(e){} };
+  box.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>{ const l=jget("kanakku_paypend"), x=l.find(y=>y.id===b.dataset.add); lsSet("kanakku_paypend",JSON.stringify(l.filter(y=>y.id!==b.dataset.add))); if(x) autoApply(x.amt,x.who); renderAuto(); });
+  box.querySelectorAll("[data-ign]").forEach(b=>b.onclick=()=>{ lsSet("kanakku_paypend",JSON.stringify(jget("kanakku_paypend").filter(y=>y.id!==b.dataset.ign))); renderAuto(); });
+}
+if(PL){ try{ PL.addListener("payment",handlePayment); }catch(e){} document.addEventListener("visibilitychange",()=>{ if(!document.hidden){ plDrain(); renderAuto(); } }); setTimeout(plDrain,600); }
 </script>
 </body>
 </html>
