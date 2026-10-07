@@ -39,3 +39,10 @@ Data lives on each phone only; the PIN is a screen lock, not encryption; backgro
 - `android-build/native/java/PaymentParser.java` unit-tested with JDK: GPay / PhonePe / Paytm / BHIM notifications, bank credit SMS (HDFC/SBI styles, balance-first), Tamil names; rejects debits, requests, failures, OTPs, cashback, "will be credited". Cross-source de-dup (app alert + bank SMS within 2 min).
 - Native classes compile-checked against API stubs; **real-device test still needed** (enable Notification access → ₹1 test → real ₹1 payment).
 - Web side tested with a mocked plugin: open-QR amount match, udhaar match by payer name, walk-in income, duplicate ids ignored, "ask first" mode with Add/Ignore, startup queue drain + ack, EN/TA, browser fallback.
+
+## v5l — Staff-phone soundbox + fixes
+- Owner phone publishes each detected/recorded payment to a private ntfy.sh topic, AES-GCM encrypted with a key derived from a 12-char pairing code (topic and key both hashed from the code). Wrong code cannot decrypt; no plaintext in the POST.
+- Staff phone: "Soundbox" screen (EventSource, wake lock + native keep-awake, resumes after app restart), speaks via native TTS (PL.speak) or Web Speech; duplicate message ids ignored; EN/TA.
+- One publish per payment in both "auto" and "ask first" modes. Verified with mocked fetch/EventSource (ntfy.sh unreachable from the build sandbox) — **needs a two-phone real-world test**.
+- Known limit: the staff phone must keep Kanakku open in the foreground (no background service yet). Public ntfy.sh server sees only encrypted blobs + timing.
+- Collect screen: extra bottom space so buttons are not hidden by the nav bar.

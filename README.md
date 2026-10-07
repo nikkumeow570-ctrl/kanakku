@@ -85,3 +85,5 @@ Build sets versionCode = run number so each APK installs as an update.
 - **Auto-confirm payments** (Android app): reads "money received" alerts from GPay/PhonePe/Paytm/bank SMS on-device, records them and speaks the amount.
 
 - **My QR (any amount)**: permanent shop QR, shareable/saveable image; auto-confirm records whatever amount arrives.
+
+- **Staff phone soundbox**: owner phone sends encrypted payment alerts to a staff phone that speaks every amount (needs internet; keep Kanakku open on the staff phone).

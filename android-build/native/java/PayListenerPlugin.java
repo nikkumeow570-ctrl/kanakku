@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
+import android.speech.tts.TextToSpeech;
+import android.view.WindowManager;
+import java.util.Locale;
 import androidx.core.app.NotificationManagerCompat;
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
@@ -68,5 +71,32 @@ public class PayListenerPlugin extends Plugin {
     @PluginMethod public void test(PluginCall call) {
         PaymentParser.Payment p = new PaymentParser.Payment(1, "Test");
         JSONObject o = PayStore.enqueue(getContext(), p, "test"); if (o != null) emit(o); call.resolve();
+    }
+
+    private TextToSpeech tts; private boolean ttsReady = false; private String pendingText, pendingLang = "en";
+
+    /** Speaks text with the phone's own text-to-speech (used by the staff-phone soundbox). */
+    @PluginMethod public void speak(PluginCall call) {
+        pendingText = call.getString("text"); pendingLang = "ta".equals(call.getString("lang")) ? "ta" : "en";
+        if (pendingText == null || pendingText.isEmpty()) { call.resolve(); return; }
+        try {
+            if (tts == null) { tts = new TextToSpeech(getContext().getApplicationContext(), status -> { ttsReady = (status == TextToSpeech.SUCCESS); if (ttsReady) say(); }); }
+            else if (ttsReady) say();
+        } catch (Exception e) { /* no TTS engine */ }
+        call.resolve();
+    }
+    private void say() {
+        try {
+            if (pendingText == null) return;
+            int r = tts.setLanguage("ta".equals(pendingLang) ? new Locale("ta", "IN") : new Locale("en", "IN"));
+            if (r == TextToSpeech.LANG_MISSING_DATA || r == TextToSpeech.LANG_NOT_SUPPORTED) tts.setLanguage(new Locale("en", "IN"));
+            tts.speak(pendingText, TextToSpeech.QUEUE_ADD, null, "kanakku-sb-" + System.nanoTime()); pendingText = null;
+        } catch (Exception ignored) {}
+    }
+    /** Keeps the screen on while the soundbox screen is open. */
+    @PluginMethod public void keepAwake(PluginCall call) {
+        final boolean on = call.getBoolean("on", false);
+        try { getActivity().runOnUiThread(() -> { if (on) getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); else getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); }); } catch (Exception ignored) {}
+        call.resolve();
     }
 }
