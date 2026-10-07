@@ -22,7 +22,14 @@ public class PayNotificationService extends NotificationListenerService {
 
     @Override public void onNotificationPosted(StatusBarNotification sbn) {
         try {
-            if (sbn == null || !PaymentParser.isAllowed(sbn.getPackageName())) return;
+            if (sbn == null) return;
+            if (!PaymentParser.isAllowed(sbn.getPackageName())) {
+                // Unlisted app: keep a local note (package + text) only if it looks like a money-in alert, so support can add it.
+                Bundle e0 = sbn.getNotification() == null ? null : sbn.getNotification().extras;
+                if (e0 != null) { String x = str(e0.getCharSequence(Notification.EXTRA_TITLE)) + " " + str(e0.getCharSequence(Notification.EXTRA_TEXT));
+                    if (x.matches("(?is).*(\\u20B9|rs\\.?|inr).*(received|credited|paid you).*") || x.matches("(?is).*(received|credited|paid you).*(\\u20B9|rs\\.?|inr).*")) PayStore.addUnparsed(this, "[unlisted] " + sbn.getPackageName(), x.trim()); }
+                return;
+            }
             Notification n = sbn.getNotification(); if (n == null || (n.flags & Notification.FLAG_GROUP_SUMMARY) != 0) return;
             Bundle ex = n.extras; if (ex == null) return;
             String title = str(ex.getCharSequence(Notification.EXTRA_TITLE)), text = str(ex.getCharSequence(Notification.EXTRA_TEXT)), big = str(ex.getCharSequence(Notification.EXTRA_BIG_TEXT));

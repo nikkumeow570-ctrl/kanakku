@@ -46,3 +46,6 @@ Data lives on each phone only; the PIN is a screen lock, not encryption; backgro
 - One publish per payment in both "auto" and "ask first" modes. Verified with mocked fetch/EventSource (ntfy.sh unreachable from the build sandbox) — **needs a two-phone real-world test**.
 - Known limit: the staff phone must keep Kanakku open in the foreground (no background service yet). Public ntfy.sh server sees only encrypted blobs + timing.
 - Collect screen: extra bottom space so buttons are not hidden by the nav bar.
+
+## v5m
+- Alerts from any app whose package name looks like a payment/bank app are now read; money-in alerts from unlisted apps are logged locally under "Not detected? Recent alerts" as [unlisted] for diagnosis.

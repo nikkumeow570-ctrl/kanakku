@@ -30,6 +30,8 @@ public final class PaymentParser {
     public static boolean isAllowed(String pkg) {
         if (pkg == null) return false;
         for (String p : PKGS) if (p.equals(pkg)) return true;
+        String l = pkg.toLowerCase(Locale.ROOT);
+        for (String k : new String[]{"paytm", "phonepe", "paisa", "upi", "bhim", "bharatpe", "mobikwik", "razorpay", "cred.club", "bank"}) if (l.contains(k)) return true;
         return false;
     }
 
