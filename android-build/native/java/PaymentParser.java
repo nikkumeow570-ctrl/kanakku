@@ -25,7 +25,7 @@ public final class PaymentParser {
         "net.one97.paytm", "com.paytm.business", "in.org.npci.upiapp", "in.amazon.mShop.android.shopping",
         "com.bharatpe.app", "com.mobikwik_new", "com.freecharge.android", "com.dreamplug.androidapp",
         "com.google.android.apps.messaging", "com.samsung.android.messaging", "com.android.mms",
-        "com.android.messaging", "com.oneplus.mms", "com.miui.mms", "com.coloros.mms"
+        "com.android.messaging", "com.oneplus.mms", "com.miui.mms", "com.coloros.mms", "com.oplus.mms", "com.vivo.mms", "com.truecaller", "com.microsoft.android.smsorganizer"
     };
     public static boolean isAllowed(String pkg) {
         if (pkg == null) return false;
