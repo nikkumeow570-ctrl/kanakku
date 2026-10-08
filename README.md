@@ -89,3 +89,5 @@ Build sets versionCode = run number so each APK installs as an update.
 - **Staff phone soundbox**: owner phone sends encrypted payment alerts to a staff phone that speaks every amount (needs internet; keep Kanakku open on the staff phone).
 
 - **v6**: listener health card, real listener self-test, keep-alive notification, battery/auto-start shortcuts.
+
+- **v6.2**: payment-app alerts speak first (bank SMS waits ~75 s as backup); automatic daily backup to Download/Kanakku (newest 7 kept).

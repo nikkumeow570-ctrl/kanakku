@@ -159,4 +159,17 @@ public class PayListenerPlugin extends Plugin {
         try { getActivity().runOnUiThread(() -> { if (on) getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); else getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); }); } catch (Exception ignored) {}
         call.resolve();
     }
+
+    /** Writes the daily backup JSON to Downloads/Kanakku (called by the web app once a day). */
+    @PluginMethod public void saveBackup(PluginCall call) {
+        JSObject r = new JSObject();
+        try {
+            String name = call.getString("name", ""), data = call.getString("data", "");
+            if (data == null || data.isEmpty()) { r.put("ok", false); r.put("reason", "empty"); call.resolve(r); return; }
+            String path = BackupWriter.write(getContext(), name, data);
+            r.put("ok", true); r.put("path", path);
+        } catch (IllegalStateException e) { r.put("ok", false); r.put("reason", e.getMessage()); }
+        catch (Exception e) { r.put("ok", false); r.put("reason", "error"); }
+        call.resolve(r);
+    }
 }

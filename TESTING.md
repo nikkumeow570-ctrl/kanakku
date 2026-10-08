@@ -58,3 +58,10 @@ Data lives on each phone only; the PIN is a screen lock, not encryption; backgro
 
 ## v6.1
 - UPI is now its own bottom-nav tab with three sections (QR / Auto-confirm / Staff). Removed from the More menu. Verified at 360px in EN and TA; all earlier tests re-run after the change.
+
+## v6.2 — Payment apps first, automatic daily backup
+- Bank SMS (messaging apps) is held 75 s; if a payment-app alert for the same amount arrived within 3 min, the SMS is dropped. Unit-tested (PaymentParser.appAlertSeen / isSmsApp) plus all earlier parser tests.
+- Trade-off: SMS-only payments (no payment-app alert) speak ~75 s after arrival.
+- Automatic backup: once per day while Kanakku is open (and on resume), writes Download/Kanakku/kanakku-auto-YYYY-MM-DD.json via MediaStore (no storage permission, Android 10+), keeps newest 7. Toggle + "Back up now" + status in Backup & Settings. Web-only browser shows the existing manual buttons.
+- Verified in Chromium with a mocked native plugin: saves on open, once per day, off switch, failure message. Native BackupWriter compile-checked against stubs only — **not run on a device**.
+- Known gap: the staff-phone relay is still published from the web page, so it only sends while Kanakku is open on the owner's phone.

@@ -81,4 +81,20 @@ public final class PaymentParser {
         }
         return false;
     }
+
+    /** Messaging apps that carry bank SMS. Their alerts are held briefly so a payment-app alert can win. */
+    public static boolean isSmsApp(String pkg) {
+        if (pkg == null) return false;
+        String l = pkg.toLowerCase(Locale.ROOT);
+        return l.contains("messag") || l.contains("mms") || l.contains("sms") || l.contains("truecaller");
+    }
+    /** True if a non-SMS (payment app) alert for this amount was seen within windowMs. */
+    public static boolean appAlertSeen(List<Seen> recent, double amt, long now, long windowMs) {
+        for (Seen s : recent) {
+            if (isSmsApp(s.pkg)) continue;
+            if (Math.abs(s.amt - amt) > 0.004) continue;
+            if (now - s.ts <= windowMs) return true;
+        }
+        return false;
+    }
 }

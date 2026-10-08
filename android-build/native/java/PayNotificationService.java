@@ -57,6 +57,7 @@ public class PayNotificationService extends NotificationListenerService {
                 return;
             }
             long now = System.currentTimeMillis();
+            if (PaymentParser.isSmsApp(pkg)) { holdSms(p, pkg, key); return; }   // bank SMS: wait, a payment-app alert wins
             if (PaymentParser.isDuplicate(PayStore.recent(this), p.amt, pkg, key, now)) return;
             PayStore.remember(this, p.amt, pkg, key, now);
             PayStore.sp(this).edit().putLong("pay_ts", now).apply();
@@ -64,6 +65,23 @@ public class PayNotificationService extends NotificationListenerService {
             if (PayStore.sp(this).getBoolean("speak", true)) speak(p);
             if (o != null) PayListenerPlugin.emit(o);
         } catch (Exception ignored) { /* never crash the listener */ }
+    }
+
+
+    /** Bank SMS arrives late or doubled. Hold it ~75 s; if a payment-app alert for the same amount arrives, skip the SMS. */
+    private void holdSms(final PaymentParser.Payment p, final String pkg, final String key) {
+        final android.content.Context app = getApplicationContext();
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+            try {
+                long now = System.currentTimeMillis();
+                if (PaymentParser.appAlertSeen(PayStore.recent(app), p.amt, now, 180000L)) return;
+                if (PaymentParser.isDuplicate(PayStore.recent(app), p.amt, pkg, key, now)) return;
+                PayStore.remember(app, p.amt, pkg, key, now);
+                JSONObject o = PayStore.enqueue(app, p, pkg);
+                if (PayStore.sp(app).getBoolean("speak", true)) speak(p);
+                if (o != null) PayListenerPlugin.emit(o);
+            } catch (Exception ignored) { }
+        }, 75000L);
     }
 
     private static String str(CharSequence c) { return c == null ? "" : c.toString(); }
